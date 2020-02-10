@@ -9,13 +9,11 @@ _(approx. 2-3 pages)_
 ### Domain Background
 _(approx. 1-2 paragraphs)_
 
-Recommendation Systems (RS) have become a ubiquitous tool for enhancing user experiences across the Internet since the mid-1990s, but recommendations have been a component of evolution since our cavement counterparts walked the earth. Whether it be the religion we worship, what crop to cultivate, or where to migrate during the colder seasons, people often rely on inputs from their peers before making decisions (Sharma, Singh, 2016).
+Recommendation Systems (RS) have become a ubiquitous tool for enhancing user experiences across the Internet since the mid-1990s. However, recommendations have been an element of evolution since our ancient counterparts walked the earth. Whether it be the religion we worship, what crop to cultivate, or where to migrate during the colder seasons, people often relied on advice from their peers before making decisions (Sharma, Singh, 2016).
 
+Spotify is a leading incumbent of the music streaming industry boasting the greatest market share of all of it's competitors. It's army of engineers and data scientists have deployed recommendation functionality in playlists, auto
 
-
-In recent times, a broad variety of such systems have come to exist across a number of domains including social media, advertisting, e-commerce and media streaming. In general terms, these tools anaslyze the behaviour of users over a period of time, in the form of clicks, plays or views. Some systems will even analyze the infinitesimal movements of a user's cursor. Algorithms then formalize distinct patterns in the data and provide recommendations to the end-user. 
-
-
+In recent times, a broad variety of such systems have come to exist across a number of domains including social media, advertising, e-commerce and media streaming. In general terms, these tools anaslyze the behaviour of users over a period of time, in the form of clicks, plays or views. Some systems will even analyze the infinitesimal movements of a user's cursor to gain the insights it needs. Algorithms then formalize any meaningful patterns to provide recommendations to the end-user with the goal of (i) increasing engagement (ii) optimizing the user experience (iii) and in most cases increasing revenue. 
 
 - History of recommendation systems (Tick)
 - Media
@@ -23,14 +21,14 @@ In recent times, a broad variety of such systems have come to exist across a num
 - Why
 - Related academic research 
 
-
-
 In this section, provide brief details on the background information of the domain from which the project is proposed. Historical information relevant to the project should be included. It should be clear how or why a problem in the domain can or should be solved. Related academic research should be appropriately cited in this section, including why that research is relevant. Additionally, a discussion of your personal motivation for investigating a particular problem in the domain is encouraged but not required.
 
 ### Problem Statement
 _(approx. 1 paragraph)_
 
 In this section, clearly describe the problem that is to be solved. The problem described should be well defined and should have at least one relevant potential solution. Additionally, describe the problem thoroughly such that it is clear that the problem is quantifiable (the problem can be expressed in mathematical or logical terms) , measurable (the problem can be measured by some metric and clearly observed), and replicable (the problem can be reproduced and occurs more than once).
+
+In recent years, Spotify has arguably encountered it's greatest competition in its short history, in the likes of Apple Music, Amazon and Tencent Music. To thrive in this streaming climate, Spotify not only needs to harness the big data at its disposal but also empower its user community to contribute in new and innovative ways. Here
 
 ### Datasets and Inputs
 _(approx. 2-3 paragraphs)_
