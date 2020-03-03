@@ -40,10 +40,10 @@ The following features have been selected to extract the appropriate information
 - *tempo*: estimated tempo of a track in beats per minute (BPM) (float)
 - *popularity*: popularity of the track represented by a value between 0 and 100, with 100 being the
  most popular (integer)
-- *genres*: a list of genres used to classify the album the track features in (array of strings)
-- *song position*: position of the track in its respective WMW volume
+- *genres*: a list of genres used to classify the album in which the track features (array of strings)
+- *song position*: position of the track in the respective WMW playlist (integer)
 
-
+Figure 1 illustrates the distribution of the above features over the range of track positions for all Wilson Morning Wake Up volumes created. As an example, loudness and energy clearly trend upwards for later track positions.
 
 <p align="center">
   <img src="img/eda_swarm_features.png">
@@ -52,7 +52,7 @@ The following features have been selected to extract the appropriate information
 
 Further information regarding the audio features can be found [here](https://developer.spotify.com/documentation/web-api/reference/tracks/get-several-audio-features/).
 
-In addition to the track dataset, the application will require a batch of candidate tracks to pick from to generate a new playlist. Again, the Spotify API will be used to gather recommended tracks based on seeded artists, genres and tracks. In the future, as an extension of this project, collaborative filtering may be considered for sourcing richer sets of recommended tracks.
+In addition to the track dataset, the solution will require a batch of candidate tracks to select from to generate a new playlist. Again, the Spotify API will be used to gather recommended tracks based on seeded artists, genres and tracks. In the future, as an extension of this project, collaborative filtering may be considered for sourcing richer sets of recommended tracks.
 
 ### Solution Statement
 The WMW deep playlist generator is a deep sequence model that leverages a Recurrent Neural Network (RNN) architecture. RNN architectures are typically structured as chains where information persists - to some degree - as it flows through a sequence of input-output layers. This is quite powerful when predicting sequences of target outputs that are dependent on context or previous states. The model will employ a 'many-to-many' mapping of input-output vectors to generate a set of 'n-defined' tracks (no more than 15 in length). The output vectors at each song position in the sequence will be used to select a track from the recommended tracks list. To evaluate the model an appropriate estimator loss function will be defined.
@@ -74,14 +74,10 @@ It is expected that the solution will pick tracks, conditioned by the context in
 <center><b>Fig. 3: Example of a Vanilla Recurrent Neural Network (<a href="https://colah.github.io/">Christopher Olah 2015</a>)</b></center>
 </p>
 
-
-
-
 <p align="center">
   <img src="https://colah.github.io/posts/2015-08-Understanding-LSTMs/img/LSTM3-chain.png">
 <center><b>Fig. 4: Example of a Long Short Term Memory Network (<a href="https://colah.github.io/posts/2015-08-Understanding-LSTMs/">Christopher Olah 2015</a>)</b></center>
 </p>
-
 
 For benchmarking, a Vanilla RNN architecture will be used to assess overall performance against a LSTM candidate model.  The models will be evaluated upon one of the loss functions detailed in the next section.
 
@@ -94,8 +90,6 @@ functions for the evaluation of the candidate models. MSE and MAE are defined as
   <img src="img/mse_mae.png">
 <center><b>Fig. 5:  Notation for the Mean Squared Error and Mean Average Error Loss Functions</b></center>
 </p>
-
-
 
 It is important to note that MAE is not as sensitive to outliers compared with MSE, thus for examples with the same input features, the result will be the median target values. In contrast, MSE is suited to scenarios where the target values - conditioned on the input features - are normally distributed. 
 
