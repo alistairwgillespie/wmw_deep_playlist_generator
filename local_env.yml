@@ -1,0 +1,20 @@
+name: local_wmw
+channels:
+  - roccqqck
+  - anaconda
+  - pytorch
+  - https://public.dhe.ibm.com/ibmdl/export/pub/software/server/ibm-ai/conda/linux-ppc64le/
+  - defaults
+dependencies:
+  - python=3.6
+  - numpy=1.18.1
+  - scipy=1.3.2
+  - tqdm=4.41.1
+  - docopt=0.6.2
+  - pytorch=1.4.0
+  - nltk=3.4.5
+  - torchvision=0.5.0
+  - seaborn=0.10.0
+  - pip
+  - pip:
+    - spotipy=2.9.0
