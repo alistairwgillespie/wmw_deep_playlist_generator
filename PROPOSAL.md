@@ -5,7 +5,7 @@ March 3, 2020
 
 ## Proposal
 ### Domain Background
-Spotify is the leading incumbent of the music streaming industry boasting a dominant market share. To satisfy it's ever-evolving audience and fend off competitors, it's harnesses an army  of engineers and data scientists to  infuse recommendation systems throughout the Spotify interface to deliver unique and dynamic listening experiences tailored to its users' preferences.
+Spotify is the leading incumbent of the music streaming industry boasting a dominant market share. To satisfy it's ever-evolving audience and fend off competitors, it harnesses an army  of engineers and data scientists to  infuse recommendation systems throughout the Spotify interface to deliver unique and dynamic listening experiences tailored to its users' preferences.
 
 Wilson's Morning Wake Up (WMW) is a Spotify playlist I curate each month; the playlist is designed 
 to build tempo as the listener starts their day with no more than 15 tracks; and explores a range of genres including house, classical, funk and jazz, to name a few. Ultimately, WMW is structured in a way as to deliver harmonic sequences of tunes that meld into an hour of blissful listening.
@@ -45,37 +45,44 @@ The following features have been selected to extract the appropriate information
 
 
 
-![alt text](img/eda_swarm_features.png "Swarm plots of mean features across song positions")
-
-<center><b>Fig. 1: Mean features values against track position </b></center>
-
-<br>
+<p align="center">
+  <img src="img/eda_swarm_features.png">
+  <center><b>Fig. 1: Mean features values against track position </b></center>
+</p>
 
 Further information regarding the audio features can be found [here](https://developer.spotify.com/documentation/web-api/reference/tracks/get-several-audio-features/).
 
 In addition to the track dataset, the application will require a batch of candidate tracks to pick from to generate a new playlist. Again, the Spotify API will be used to gather recommended tracks based on seeded artists, genres and tracks. In the future, as an extension of this project, collaborative filtering may be considered for sourcing richer sets of recommended tracks.
 
 ### Solution Statement
-The WMW deep playlist generator is a deep sequence model that leverages a Recurrent Neural Network (RNN) architecture. RNN architectures are typically structured as chains where information persists - to some degree - as it flows through a sequence of input-output layers. This is quite powerful when predicting sequences of target outputs that are dependent on context or previous states. The model will employ a 'many-to-many' mapping of input-output vectors to generate a set of 'n-defined' tracks (no more than 15 in length). The output vectors at each song position in the sequence will be used to select a track from the recommended tracks list. To evaluate the model an appropriate estimator loss function will be defined. 
+The WMW deep playlist generator is a deep sequence model that leverages a Recurrent Neural Network (RNN) architecture. RNN architectures are typically structured as chains where information persists - to some degree - as it flows through a sequence of input-output layers. This is quite powerful when predicting sequences of target outputs that are dependent on context or previous states. The model will employ a 'many-to-many' mapping of input-output vectors to generate a set of 'n-defined' tracks (no more than 15 in length). The output vectors at each song position in the sequence will be used to select a track from the recommended tracks list. To evaluate the model an appropriate estimator loss function will be defined.
 
-![alt text](img/sequence.jpeg "Examples of different sequence architectures")
 
-<center><b>Fig. 2: Examples showing the flexible nature of Recurrent Neural Networks (<a href="http://karpathy.github.io/2015/05/21/rnn-effectiveness/">Andrej Karpathy 2015</a>)</b></center>
+
+<p align="center">
+  <img src="img/sequence.jpeg">
+  <center><b>Fig. 2: Examples showing the flexible nature of Recurrent Neural Networks (<a href="http://karpathy.github.io/2015/05/21/rnn-effectiveness/">Andrej Karpathy 2015</a>)</b></center>
+</p> 
 
 ### Benchmark Model
 It is expected that the solution will pick tracks, conditioned by the context in which they appear, to deliver harmonic track sequences that closely resemble the manually crafted volumes to date. In theory, Vanilla RNNs can persist such information across sequences of input data but in practice commonly fall short. Then came along Long Short-Term Memory networks capable of persisting longer-term contexts of information. Christoper Olah's insightful images pictured below display the differences in how Vanilla RNNs and LSTMs persist information across sequences of inputs and outputs:
 
-![img](https://colah.github.io/posts/2015-08-Understanding-LSTMs/img/LSTM3-SimpleRNN.png)
-
-<center><b>Fig. 3: Example of a Vanilla Recurrent Neural Network (<a href="https://colah.github.io/posts/2015-08-Understanding-LSTMs/">Christopher Olah 2015</a>)</b></center>
 
 
+<p align="center">
+  <img src="https://colah.github.io/posts/2015-08-Understanding-LSTMs/img/LSTM3-SimpleRNN.png">
+<center><b>Fig. 3: Example of a Vanilla Recurrent Neural Network (<a href="https://colah.github.io/">Christopher Olah 2015</a>)</b></center>
+</p>
 
-![A LSTM neural network.](https://colah.github.io/posts/2015-08-Understanding-LSTMs/img/LSTM3-chain.png)
 
+
+
+<p align="center">
+  <img src="   https://colah.github.io/posts/2015-08-Understanding-LSTMs/img/LSTM3-chain.png">
 <center><b>Fig. 4: Example of a Long Short Term Memory Network (<a href="https://colah.github.io/posts/2015-08-Understanding-LSTMs/">Christopher Olah 2015</a>)</b></center>
+</p>
 
-<br>
+
 For benchmarking, a Vanilla RNN architecture will be used to assess overall performance against a LSTM candidate model.  The models will be evaluated upon one of the loss functions detailed in the next section.
 
 ### Evaluation Metrics
@@ -83,22 +90,26 @@ For benchmarking, a Vanilla RNN architecture will be used to assess overall perf
 The Mean Squared Error (MSE) and Mean Absolute Error (MAE) metrics will be considered as loss
 functions for the evaluation of the candidate models. MSE and MAE are defined as follows ([Peltarion 2020](https://peltarion.com/knowledge-center/documentation/evaluation-view/regression-loss-metrics)):
 
-![alt text](img/mse_mae.png "Mean Squared Error and Mean Average Error Metrics")
-
+<p align="center">
+  <img src="img/mse_mae.png">
 <center><b>Fig. 5:  Notation for the Mean Squared Error and Mean Average Error Loss Functions</b></center>
+</p>
+
+
 
 It is important to note that MAE is not as sensitive to outliers compared with MSE, thus for examples with the same input features, the result will be the median target values. In contrast, MSE is suited to scenarios where the target values - conditioned on the input features - are normally distributed. 
 
 ### Project Design
 The workflow will be structured in a way that is closely aligned to the [Team Data Science Process](https://docs.microsoft.com/en-us/azure/machine-learning/team-data-science-process/overview) defined by Microsoft whilst also inheriting elements from Udacity's standard project structure. As a result, an iterative data science methodology will be followed to deliver the project. The key steps are pictured below and are explained in the subsequent sections:
 
-<br>
 
-<center><img src="img/dsprocess.png"></center>
 
+<p align="center">
+  <img src="img/dsprocess.png">
 <center><b>Fig. 6: Project Data Science Process with Key Project Notebooks</b></center>
+</p>
 
- <br>
+
 
 The project [code](https://github.com/alistairwgillespie/wmw_deep_playlist_generator) will be structured - subject to change - as follows:
 
@@ -162,20 +173,23 @@ For modeling and training, the following tasks will be performed:
 
 The primary focus of this phase will be to consider the problem domain at hand, and any key findings, to configure the network appropriately, in particular, the input vector dimensions (feature set), number of hidden layers, output vector dimensions and regularization (Figure 7).
 
-![Example of a Recurrent Neural Network cell](img/nn.svg)
-
+<p align="center">
+  <img src="img/nn.svg">
 <center><b>Fig. 7: Example Recurrent Neural Network Unit for Track Estimating</b></center>
+</p>
 
 
 
-### Estimation and Playlist Generation
+#### Estimation and Playlist Generation
 
 Lastly, the chosen model will  be used to select tracks at each position of the target playlist by:
 
 - Extracting a bunch of candidate tracks using track, artist and genre seeds via Spotipy
 - Selecting tracks for each position according to the model's predicted output vectors (audio features) using selection thresholds
 
-### Future Considerations
+Furthermore, a Python Playlist class will be defined to construct objects that will facilitate the creation of playlists.
+
+#### Future Considerations
 
 Future iterations of this solution may consider deployment options such as a web interface to allow users to train their own deep playlist model based any defined playlists. Furthermore, collaborative filtering is another exciting option for sourcing more meaningful track recommendations for playlist selection.
 
