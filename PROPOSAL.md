@@ -185,7 +185,7 @@ Furthermore, a Python Playlist class will be defined to construct objects that w
 
 #### Future Considerations
 
-Future iterations of this solution may consider deployment options such as a web interface to allow users to train their own deep playlist model based any defined playlists. Furthermore, collaborative filtering is another exciting option for sourcing more meaningful track recommendations for playlist selection.
+Future iterations of this solution may consider deployment options such as a web interface to allow users to train their own deep playlist model based on any defined playlists. Furthermore, collaborative filtering is another exciting option for sourcing more meaningful track recommendations for playlist selection.
 
 ### References
 
