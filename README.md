@@ -10,6 +10,10 @@ Activate and deactivate environment
 conda activate local_wmw
 conda deactivate
 ```
+Add environment to Jupyter Notebook
+```bash
+python -m ipykernel install --user --name=local_wmw
+```
 
 Install latest pytorch for local and cpu only
 ```bash
