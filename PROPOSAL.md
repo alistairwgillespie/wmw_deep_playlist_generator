@@ -3,7 +3,7 @@
 Alistair Wilson Gillespie  
 March 3, 2020
 
-## Proposal
+## Proposal	
 ### Domain Background
 Spotify is the leading incumbent of the music streaming industry boasting a dominant market share. To satisfy it's ever-evolving audience and fend off competitors, it harnesses an army  of engineers and data scientists to  infuse recommendation systems throughout the Spotify interface to deliver unique and dynamic listening experiences tailored to its users' preferences.
 
@@ -78,7 +78,7 @@ It is expected that the solution will pick tracks, conditioned by the context in
 
 
 <p align="center">
-  <img src="   https://colah.github.io/posts/2015-08-Understanding-LSTMs/img/LSTM3-chain.png">
+  <img src="https://colah.github.io/posts/2015-08-Understanding-LSTMs/img/LSTM3-chain.png">
 <center><b>Fig. 4: Example of a Long Short Term Memory Network (<a href="https://colah.github.io/posts/2015-08-Understanding-LSTMs/">Christopher Olah 2015</a>)</b></center>
 </p>
 
