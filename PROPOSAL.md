@@ -10,8 +10,6 @@ Spotify is the leading incumbent of the music streaming industry boasting a domi
 Wilson's Morning Wake Up (WMW) is a Spotify playlist I curate each month; the playlist is designed 
 to build tempo as the listener starts their day with no more than 15 tracks; and explores a range of genres including house, classical, funk and jazz, to name a few. Ultimately, WMW is structured in a way as to deliver harmonic sequences of tunes that meld into an hour of blissful listening.
 
-For this project, I propose an approach for sequence-based playlist generation using deep learning. The aim is to build a model that can generate playlists that closely resemble the unique qualities and nature of Wilson's Morning Wake Up. 
-
 ### Problem Statement
 The objective of this project is to build a deep playlist generator capable of producing playlists of the same quality and structure as Wilson's Morning Wake Up. The solution will perform the following tasks:
 
