@@ -49,7 +49,7 @@ The following features have been selected to extract the appropriate information
 
 <center><b>Fig. 1: Mean features values against track position </b></center>
 
-
+<br>
 
 Further information regarding the audio features can be found [here](https://developer.spotify.com/documentation/web-api/reference/tracks/get-several-audio-features/).
 
@@ -75,14 +75,13 @@ It is expected that the solution will pick tracks, conditioned by the context in
 
 <center><b>Fig. 4: Example of a Long Short Term Memory Network (<a href="https://colah.github.io/posts/2015-08-Understanding-LSTMs/">Christopher Olah 2015</a>)</b></center>
 
-
-
+<br>
 For benchmarking, a Vanilla RNN architecture will be used to assess overall performance against a LSTM candidate model.  The models will be evaluated upon one of the loss functions detailed in the next section.
 
 ### Evaluation Metrics
 
 The Mean Squared Error (MSE) and Mean Absolute Error (MAE) metrics will be considered as loss
-functions for the evaluation of the candidate models. MSE and MAE are defined as follows (https://peltarion.com/knowledge-center/documentation/evaluation-view/regression-loss-metrics):
+functions for the evaluation of the candidate models. MSE and MAE are defined as follows ([Peltarion 2020](https://peltarion.com/knowledge-center/documentation/evaluation-view/regression-loss-metrics)):
 
 ![alt text](img/mse_mae.png "Mean Squared Error and Mean Average Error Metrics")
 
@@ -93,11 +92,13 @@ It is important to note that MAE is not as sensitive to outliers compared with M
 ### Project Design
 The workflow will be structured in a way that is closely aligned to the [Team Data Science Process](https://docs.microsoft.com/en-us/azure/machine-learning/team-data-science-process/overview) defined by Microsoft whilst also inheriting elements from Udacity's standard project structure. As a result, an iterative data science methodology will be followed to deliver the project. The key steps are pictured below and are explained in the subsequent sections:
 
+<br>
+
 <center><img src="img/dsprocess.png"></center>
 
 <center><b>Fig. 6: Project Data Science Process with Key Project Notebooks</b></center>
 
- 	
+ <br>
 
 The project [code](https://github.com/alistairwgillespie/wmw_deep_playlist_generator) will be structured - subject to change - as follows:
 
@@ -161,7 +162,7 @@ For modeling and training, the following tasks will be performed:
 
 The primary focus of this phase will be to consider the problem domain at hand, and any key findings, to configure the network appropriately, in particular, the input vector dimensions (feature set), number of hidden layers, output vector dimensions and regularization (Figure 7).
 
-![Example of a Recurrent Neural Network cell](img\nn.svg )
+![Example of a Recurrent Neural Network cell](img/nn.svg)
 
 <center><b>Fig. 7: Example Recurrent Neural Network Unit for Track Estimating</b></center>
 
@@ -180,16 +181,12 @@ Future iterations of this solution may consider deployment options such as a web
 
 ### References
 
+Thank you to the following authors for providing excellent insights and inspiration for this project:
 
+*The Unreasonable Effectiveness of Recurrent Neural Networks 2015, Andrej Karpathy, accessed 1 March 2020, [http://karpathy.github.io/2015/05/21/rnn-effectiveness/](http://karpathy.github.io/2015/05/21/rnn-effectiveness/).*
 
+*RRN Music Recommender 2019, Taylor Hawks, accessed 26 February 2020, https://github.com/taylorhawks/RNN-music-recommender.*
 
+*Understanding LSTM Networks 2015, Christopher Olah, accessed 26 February 2020, https://colah.github.io/posts/2015-08-Understanding-LSTMs/.*
 
------------
-
-**Before submitting your proposal, ask yourself. . .**
-
-- Does the proposal you have written follow a well-organized structure similar to that of the project template?
-- Is each section (particularly **Solution Statement** and **Project Design**) written in a clear, concise and specific fashion? Are there any ambiguous terms or phrases that need clarification?
-- Would the intended audience of your project be able to understand your proposal?
-- Have you properly proofread your proposal to assure there are minimal grammatical and spelling mistakes?
-- Are all the resources used for this project correctly cited and referenced?
+*Regression loss metrics 2020, Peltarion, accessed 1 March 2020, https://peltarion.com/knowledge-center/documentation/evaluation-view/regression-loss-metrics.*
