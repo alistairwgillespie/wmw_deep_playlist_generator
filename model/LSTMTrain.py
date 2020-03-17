@@ -12,7 +12,7 @@ import torch.optim as optim
 import torch.utils.data
 
 # imports the model in model.py by name
-from model import BinaryClassifier
+from model.LSTM_Estimator import LSTMEstimator
 
 
 def model_fn(model_dir):
@@ -29,7 +29,7 @@ def model_fn(model_dir):
 
     # Determine the device and construct the model.
     device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
-    model = BinaryClassifier(model_info['input_features'], model_info['hidden_dim'], model_info['output_dim'])
+    model = LSTMEstimator(model_info['input_features'], model_info['hidden_dim'], model_info['output_dim'])
 
     # Load the stored model parameters.
     model_path = os.path.join(model_dir, 'model.pth')
@@ -56,10 +56,10 @@ def _get_train_data_loader(batch_size, training_dir):
     return torch.utils.data.DataLoader(train_ds, batch_size=batch_size)
 
 
-# Provided training function
+# Training function for LSTM
 def train(model, train_loader, epochs, criterion, optimizer, device):
     """
-    This is the training method that is called by the PyTorch training script. The parameters
+    This is the training method that is called by the PyTorch training script of the LSTM model. The parameters
     passed are as follows:
     model        - The PyTorch model that we wish to train.
     train_loader - The PyTorch DataLoader that should be used during training.
@@ -76,13 +76,21 @@ def train(model, train_loader, epochs, criterion, optimizer, device):
         total_loss = 0
 
         for batch in train_loader:
+            
             # get data
             batch_x, batch_y = batch
+            
+            # 
+            batch_x = torch.from_numpy(batch_x).float().squeeze()
+            batch_y = torch.from_numpy(batch_y).float()
 
             batch_x = batch_x.to(device)
             batch_y = batch_y.to(device)
 
             optimizer.zero_grad()
+            
+            model.hidden_cell = (torch.zeros(1, 1, model.hidden_layer_dim),
+                torch.zeros(1, 1, model.hidden_layer_dim))
 
             # get predictions from model
             y_pred = model(batch_x)
@@ -93,8 +101,9 @@ def train(model, train_loader, epochs, criterion, optimizer, device):
             optimizer.step()
             
             total_loss += loss.data.item()
-
-        print("Epoch: {}, Loss: {}".format(epoch, total_loss / len(train_loader)))
+            
+        if epoch%25 == 1:
+            print("Epoch: {}, Loss: {}".format(epoch, total_loss / len(train_loader)))
 
 
 ## TODO: Complete the main code
@@ -113,8 +122,8 @@ if __name__ == '__main__':
     parser.add_argument('--data-dir', type=str, default=os.environ['SM_CHANNEL_TRAIN'])
     
     # Training Parameters, given
-    parser.add_argument('--batch-size', type=int, default=10, metavar='N',
-                        help='input batch size for training (default: 10)')
+#     parser.add_argument('--batch-size', type=int, default=10, metavar='N',
+#                         help='input batch size for training (default: 10)')
     parser.add_argument('--epochs', type=int, default=10, metavar='N',
                         help='number of epochs to train (default: 10)')
     parser.add_argument('--seed', type=int, default=1, metavar='S',
