@@ -10,7 +10,7 @@ class LSTMEstimator(nn.Module):
     """
 
     ## TODO: Define the init function, the input params are required (for loading code in train.py to work)
-    def __init__(self, input_features, hidden_dim, output_dim):
+    def __init__(self, input_features=11, hidden_dim=30, n_layers=1, output_dim=8):
         """s
         Initialize the model by setting up linear layers.
         Use the input parameters to help define the layers of your model.
@@ -21,15 +21,20 @@ class LSTMEstimator(nn.Module):
         super(LSTMEstimator, self).__init__()
         
         self.hidden_layer_dim = hidden_dim
+        self.hidden_layers = n_layers
         
         # The LSTM takes track features as inputs, and outputs hidden states
         # with dimensionality hidden_dim
-        self.lstm = nn.LSTM(input_features, hidden_dim)
+        self.lstm = nn.LSTM(input_features, hidden_dim, n_layers)
         
         self.hidden2target = nn.Linear(hidden_dim, output_dim)
         
         self.hidden_cell = (torch.zeros(1, 1, self.hidden_layer_dim), 
                             torch.zeros(1, 1, self.hidden_layer_dim))
+        
+#     ## Initialize the hidden and cell states of the LSTM with zeros.
+#     def init_hidden (self): 
+#         return (torch.zeros (self.hidden_layers, 1, self.hidden_layer_dim)),(torch.zeros (self.hidden_layers, 1, self.hidden_layer_dim))
         
     
     ## TODO: Define the feedforward behavior of the network
