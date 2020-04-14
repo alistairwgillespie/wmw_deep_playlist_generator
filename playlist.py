@@ -176,7 +176,7 @@ class Playlist():
                 song_res = sp.search(song_search, limit=1)['tracks']['items'][0]
 
                 # Gather recommendations for each of the past WMW tracks
-                results = sp.recommendations(seed_tracks = [song_res['id']], limit=15)
+                results = sp.recommendations(seed_tracks = [song_res['id']], limit=20)
 
                 for r in results['tracks']:
                     track={}
@@ -237,19 +237,27 @@ class Playlist():
             # Get recommended tracks for current track position
             recommendations = self.get_position_recommendations(p)
             
+            print("Recommendations", recommendations.shape)
+            
             # Filter for compatible tracks according to key and mode (harmonic wheel)
             next_tracks_curr_mode = recommendations[
                 (recommendations['key'].isin(keys[:3])) & (recommendations['mode'] == current_mode)
             ]
             
+            print("Curr mode", next_tracks_curr_mode.shape)
+            
             next_tracks_change_mode = recommendations[
                 (recommendations['key'] == keys[-1]) & (recommendations['mode'] == abs(int(not current_mode)))
             ]
+            
+            print("Change mode", next_tracks_change_mode.shape)
             
             candidate_tracks = pd.concat([next_tracks_curr_mode, next_tracks_change_mode]).reset_index(drop=True)
             
             # Ensure no duplicates exist in the playlist
             candidate_tracks = candidate_tracks[~candidate_tracks['id'].isin(predicted['id'])]
+            
+            print("CANDIDATES:", candidate_tracks.shape)
             
             # Pick optimal track
             next_track = self.pick_optimal_track(candidate_tracks, output)
@@ -266,12 +274,12 @@ class Playlist():
 
         return predicted
     
-    
-        def post_playlist(self):
-            if token:
-                sp = spotipy.Spotify(auth=token)
-                sp.trace = False
-                tracks = sp.user_playlist_replace_tracks('1247785541', '7x1MY3AW3YCaHoicpiacGv', self.new_playlist['id'].values)
-                print("Posting latest Wilson's FM.")
-            else:
-                print("Can't get token for", username)
+
+    def post_playlist(self):
+        if token:
+            sp = spotipy.Spotify(auth=token)
+            sp.trace = False
+            tracks = sp.user_playlist_replace_tracks('1247785541', '7x1MY3AW3YCaHoicpiacGv', self.new_playlist['id'].values)
+            print("Posting latest Wilson's FM.")
+        else:
+            print("Can't get token for", username)
