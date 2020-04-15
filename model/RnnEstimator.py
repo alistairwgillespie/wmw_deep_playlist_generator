@@ -4,11 +4,10 @@ import torch.nn.functional as F
 import torch.nn as nn
 
 
-## TODO: Complete this RNN Estimator
-class RNNEstimator(nn.Module):
+class RnnEstimator(nn.Module):
     
     def __init__(self, input_size, hidden_size, output_size):
-        super(RNNEstimator, self).__init__()
+        super(RnnEstimator, self).__init__()
 
         self.hidden_size = hidden_size
 
@@ -16,7 +15,7 @@ class RNNEstimator(nn.Module):
         self.i2o = nn.Linear(input_size + hidden_size, output_size)
         
     
-    ## TODO: Define the feedforward behavior of the network
+    ## Define the feedforward behavior of the network
     def forward(self, input_sequence, hidden):
         combined = torch.cat((input_sequence, hidden), 1)
         hidden = self.i2h(combined)

@@ -10,9 +10,13 @@ import pandas as pd
 import torch
 import torch.optim as optim
 import torch.utils.data
+from torch.utils.data import DataLoader
 
 # imports the model in model.py by name
 from LSTM_Estimator import LSTMEstimator
+
+from PlaylistDataset import PlaylistDataset
+
 
 def model_fn(model_dir):
     """Load the PyTorch model from the `model_dir` directory."""
@@ -41,29 +45,40 @@ def model_fn(model_dir):
     print("Done loading model.")
     return model
 
-# Build sequences and targets
-def _create_playlist_sequences(input_data):
-    input_playlists = []
-
-    for i in input_data['volume'].unique():
-        temp_vol = input_data[input_data['volume'] == i]
-        playlist_X = temp_vol.iloc[:, 2:].values
-        labels_y = temp_vol.iloc[:, 2:-3].values
-        input_playlists.append((playlist_X, labels_y))
-
-    return input_playlists
 
 # Gets training data in batches from the train.csv file
-def _get_train_data(training_dir):
-    print("Get train data.")
+def _get_train_data_loader(batch_size, training_dir):
+    print("Get train data loader.")
+    
+    dataset =  PlaylistDataset(training_dir, "tensor_train.csv")
+    
+    return DataLoader(dataset, batch_size=batch_size, shuffle=False)
 
-    # Read train data
-    train_df = pd.read_csv(os.path.join(training_dir, "train.csv"))
 
-    # Gather sequences and targets
-    processed_data = _create_playlist_sequences(train_df)
+# # Build sequences and targets
+# def _create_playlist_sequences(input_data):
+#     input_playlists = []
 
-    return processed_data
+#     for i in input_data['volume'].unique():
+#         temp_vol = input_data[input_data['volume'] == i]
+#         playlist_X = temp_vol.iloc[:, 2:].values
+#         labels_y = temp_vol.iloc[:, 2:-3].values
+#         input_playlists.append((playlist_X, labels_y))
+
+#     return input_playlists
+
+
+# # Gets training data in batches from the train.csv file
+# def _get_train_data(training_dir):
+#     print("Get train data.")
+
+#     # Read train data
+#     train_df = pd.read_csv(os.path.join(training_dir, "train.csv"))
+
+#     # Gather sequences and targets
+#     processed_data = _create_playlist_sequences(train_df)
+
+#     return processed_data
 
 
 # Provided training function
@@ -81,39 +96,32 @@ def train(model, train_loader, epochs, criterion, optimizer, device):
     
     # training loop is provided
     for epoch in range(1, epochs + 1):
-        model.train() # Make sure that the model is in training mode.
-
-        total_loss = 0
-
-        for batch in train_loader:
-            
-            # get data
-            batch_x, batch_y = batch
-            
-            # 
-            batch_x = torch.from_numpy(batch_x).float().squeeze()
-            batch_y = torch.from_numpy(batch_y).float()
-
-            batch_x = batch_x.to(device)
-            batch_y = batch_y.to(device)
+        
+        for i, batch in enumerate(train_loader):
 
             optimizer.zero_grad()
-            
-            model.hidden_cell = (torch.zeros(1, 1, model.hidden_layer_dim),
-                torch.zeros(1, 1, model.hidden_layer_dim))
 
-            # get predictions from model
-            y_pred = model(batch_x)
+            cum_loss = 0
             
-            # perform backprop
-            loss = criterion(y_pred, batch_y)
-            loss.backward()
-            optimizer.step()
+            hidden_cell = model.init_hidden()
             
-            total_loss += loss.data.item()
+            for i, track in enumerate(batch):
+                
+                track_x = track[0]
+                track_y = track[-1]
+                
+                output, hidden_cell = model(track_x.unsqueeze(0), hidden_cell)
+                
+                loss = criterion(output, track_y)
+                loss.backward(retain_graph=True)
+                optimizer.step()
+                cum_loss += loss.data.item()
+
+            total_loss = cum_loss / len(batch[0])
             
-        if epoch%25 == 1:
-            print("Epoch: {}, Loss: {}".format(epoch, total_loss / len(train_loader)))
+        if epoch % 100 == 0:
+            print('Epoch: {}/{}.............'.format(epoch, epochs), end=' ')
+            print("Loss: {:.4f}".format(total_loss))
 
 
 ## TODO: Complete the main code
@@ -132,8 +140,8 @@ if __name__ == '__main__':
     parser.add_argument('--data-dir', type=str, default=os.environ['SM_CHANNEL_TRAIN'])
     
     # Training Parameters, given
-#     parser.add_argument('--batch-size', type=int, default=10, metavar='N',
-#                         help='input batch size for training (default: 10)')
+    parser.add_argument('--batch-size', type=int, default=12, metavar='N',
+                        help='input batch size for training (default: 10)')
     parser.add_argument('--epochs', type=int, default=10, metavar='N',
                         help='number of epochs to train (default: 10)')
     parser.add_argument('--seed', type=int, default=1, metavar='S',
@@ -142,11 +150,13 @@ if __name__ == '__main__':
     ## TODO: Add args for the three model parameters: input_features, hidden_dim, output_dim
     # Model Parameters
     
-    parser.add_argument('--input_features', type=int, default=11, metavar='N',
+    parser.add_argument('--input_features', type=int, default=9, metavar='N',
                         help='size of the feature space (default: 2)')
-    parser.add_argument('--hidden_dim', type=int, default=12, metavar='N',
+    parser.add_argument('--hidden_dim', type=int, default=30, metavar='N',
                         help='size of the hidden dimension (default: 100)')
-    parser.add_argument('--output_dim', type=int, default=8, metavar='N',
+    parser.add_argument('--hidden_layers', type=int, default=1, metavar='N',
+                        help='number of hidden layers (default: 1)')
+    parser.add_argument('--output_dim', type=int, default=9, metavar='N',
                         help='size of the output dimension (default: 4)')
     parser.add_argument('--lr', type=float, default=1e-3,
                         help='learning rate (default: 1e-3)')
@@ -160,15 +170,14 @@ if __name__ == '__main__':
     torch.manual_seed(args.seed)
 
     # Load the training data.
-    train_loader = _get_train_data(args.data_dir)
-
-
+    train_loader = _get_train_data_loader(args.batch_size, args.data_dir)
+    
     ## --- Your code here --- ##
     
-    ## TODO:  Build the model by passing in the input params
+    ## Build the model by passing in the input params
     # To get params from the parser, call args.argument_name, ex. args.epochs or ards.hidden_dim
     # Don't forget to move your model .to(device) to move to GPU , if appropriate
-    model = LSTMEstimator(args.input_features, args.hidden_dim, args.output_dim)
+    model = LSTMEstimator(args.input_features, args.hidden_dim, args.hidden_layers, args.output_dim).to(device)
 
     ## TODO: Define an optimizer andfunction for training
     optimizer = optim.Adam(model.parameters(), args.lr)
@@ -176,10 +185,17 @@ if __name__ == '__main__':
 
     # Trains the model (given line of code, which calls the above training function)
     train(model, train_loader, args.epochs, criterion, optimizer, device)
+    
+    # device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
+    # lstm_model = LSTMEstimator(9, 30, 1, 9)
+    # optimizer = optim.Adam(lstm_model.parameters(), lr=0.001)
+    # loss_fn = torch.nn.L1Loss()
 
     ## TODO: complete in the model_info by adding three argument names, the first is given
-    # Keep the keys of this dictionary as they are 
-    model_info_path = os.path.join(args.model_dir, 'model_info.pth')
+    # Keep the keys of this dictionary as they are
+    
+    model_info_path = os.path.join(args.model_dir, 'lstm.pth')
+    
     with open(model_info_path, 'wb') as f:
         model_info = {
             'input_features': args.input_features,
@@ -191,7 +207,7 @@ if __name__ == '__main__':
     ## --- End of your code  --- ##
     
 
-	# Save the model parameters
-    model_path = os.path.join(args.model_dir, 'model.pth')
+    # Save the model parameters
+    model_path = os.path.join(args.model_dir, args.model_name + '.pth')
     with open(model_path, 'wb') as f:
         torch.save(model.cpu().state_dict(), f)

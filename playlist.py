@@ -1,19 +1,23 @@
 # Utilities
+import subprocess as sb 
+import sys
+sb.call([sys.executable, "-m", "pip", "install", 'spotipy']) 
+sb.call([sys.executable, "-m", "pip", "install", 'joblib']) 
 import os
 import random
 import numpy as np
 import pandas as pd
 from tqdm.notebook import tqdm
-import joblib
 from scipy.spatial.distance import cdist
+import joblib
 
 # PyTorch
 import torch
 import torch.optim as optim
 
 # Models
-from model.LSTM_Estimator import LSTMEstimator
-from model.RNN_Estimator import RNNEstimator
+from model.LstmEstimator import LstmEstimator
+from model.RnnEstimator import RnnEstimator
 
 # Spotify API
 import spotipy
@@ -63,11 +67,11 @@ class Playlist():
         self.dim_red = joblib.load('artefacts/dim_red.pkl')
         
         if model_type == "LSTM":
-            model = LSTMEstimator(9, 30, 1, 9)
+            model = LstmEstimator(9, 30, 1, 9)
             model.load_state_dict(torch.load('artefacts/lstm_model.pth'))
             
         elif model_type == "RNN":
-            model = RNNEstimator(9, 30, 9)
+            model = RnnEstimator(9, 30, 9)
             model.load_state_dict(torch.load('artefacts/rnn_model.pth'))
         else:
             print("Please specify either the RNN or LSTM model using the model_type parameter.")
