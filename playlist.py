@@ -10,6 +10,7 @@ import pandas as pd
 from tqdm.notebook import tqdm
 from scipy.spatial.distance import cdist
 import joblib
+import config
 
 # PyTorch
 import torch
@@ -25,9 +26,9 @@ import spotipy.util as util
 from spotipy.oauth2 import SpotifyClientCredentials
 
 # Spotify variables
-username = os.environ['SPOTIFY_EMAIL']
-spotify_id = os.environ['SPOTIFY_ID']
-spotify_secret = os.environ['SPOTIFY_SECRET']
+username = config.SPOTIFY_EMAIL
+spotify_id = config.SPOTIFY_ID
+spotify_secret = config.SPOTIFY_SECRET
 
 # Set API scope
 scope='playlist-read-private, playlist-modify-private, playlist-modify-public'

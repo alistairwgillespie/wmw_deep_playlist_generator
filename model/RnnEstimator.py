@@ -22,5 +22,5 @@ class RnnEstimator(nn.Module):
         output = self.i2o(combined)
         return output, hidden
     
-    def initHidden(self):
+    def init_hidden(self):
         return torch.zeros(1, self.hidden_size)
