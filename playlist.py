@@ -17,45 +17,20 @@ from model.LstmEstimator import LstmEstimator
 from model.RnnEstimator import RnnEstimator
 
 # If AWS SageMaker:
-
-# Joblib
-sb.call([sys.executable, "-m", "pip", "install", 'joblib'])
-import joblib
-
 # Spotify API
 sb.call([sys.executable, "-m", "pip", "install", 'spotipy'])
 import spotipy
 import spotipy.util as util
 from spotipy.oauth2 import SpotifyClientCredentials
 
-# Spotify variables
-username = config.SPOTIFY_EMAIL
-spotify_id = config.SPOTIFY_ID
-spotify_secret = config.SPOTIFY_SECRET
-
-# Set API scope
-scope = "playlist-read-private, playlist-modify-private, playlist-modify-public"
-
-# Get auth token
-token = util.prompt_for_user_token(username,
-                                   scope,
-                                   client_id=spotify_id,
-                                   client_secret=spotify_secret,
-                                   redirect_uri='http://localhost/'
-                                   )
-
-# Authenticate
-sp = spotipy.Spotify(
-        client_credentials_manager=SpotifyClientCredentials(
-            client_id=spotify_id,
-            client_secret=spotify_secret
-        )
-)
+# Joblib
+sb.call([sys.executable, "-m", "pip", "install", 'joblib'])
+import joblib
 
 
 class Playlist():
-    def __init__(self, wmw_pool, spotify_auth, model_type="LSTM"):
-        """ Initiates pool of historic tracks, spotify api authentication and 
+    def __init__(self, wmw_pool, spotify_auth, spotify_token, model_type="LSTM"):
+        """ Initiates pool of historic tracks, spotify api authentication and
             model of choice.
         """
         self.recommended_track_ids = pd.DataFrame() #list of track ids straight from spotify
@@ -63,6 +38,8 @@ class Playlist():
         self.df = None #this is where the data goes
         self.playlist = None
         self.wmw_pool_df = wmw_pool
+        self.token = spotify_token
+        self.spotify_auth = spotify_auth
 
         # Feature set
         self.feature_list =  ['danceability','energy', 'loudness', 'speechiness', 'acousticness',
@@ -97,12 +74,12 @@ class Playlist():
         song = self.wmw_pool_df[self.wmw_pool_df['position'] == 1].sample(1).copy()
 
         # Gather a recommendation based on the intro track using spotify
-        song_res = spotify_auth.recommendations(seed_tracks=song['id'].values, limit=1)
+        song_res = self.spotify_auth.recommendations(seed_tracks=song['id'].values, limit=1)
 
         # Gather track freatures from spotify result
         for r in song_res['tracks']:
             track = {'id': r['id'], 'artists': ([i['name'] for i in r['artists']],), 'name': r['name']}
-            track_features = spotify_auth.audio_features(r['id'])[0]
+            track_features = self.spotify_auth.audio_features(r['id'])[0]
             track.update(track_features)
             self.intro_track = pd.DataFrame(track, index=[0])
 
@@ -114,7 +91,7 @@ class Playlist():
     def harmonic_match(self, key, mode):
         """Given a key and mode, return compatible keys according to the harmonic wheel."""
 
-        # Harmonic Mixing Wheel: Pitch Class 
+        # Harmonic Mixing Wheel: Pitch Class
         # 1A 0 - A flat minor: 8 | 1B 0 - B major: 11
         # 2A 1 - E flat minor: 3 | 2B 1 - F-sharp major: 6
         # 3A 2 - B-flat minor: 10 | 3B 2 - D-flat major: 1
@@ -173,22 +150,18 @@ class Playlist():
 
         # Iterate full catalog of WMW songs
         for _, row in wmw_sample_df.iterrows():
-
             song_search = row['track_name'].partition('-')[0] + ' ' + row['artist_name']
-
             try:
-
-                # Query Spotify to get track metadata
-                song_res = spotify_auth.search(song_search, limit=1)['tracks']['items'][0]
-
-                # Gather recommendations for each of the past WMW tracks
-                results = spotify_auth.recommendations(seed_tracks = [song_res['id']], limit=20)
+                # Query Spotify to get track metadata then gather recommendations
+                # based on the sampled tracks from past volumes
+                song_res = self.spotify_auth.search(song_search, limit=1)['tracks']['items'][0]
+                results = self.spotify_auth.recommendations(seed_tracks=[song_res['id']], limit=20)
 
                 for r in results['tracks']:
                     track = {'id': r['id'], 'artists': [i['name'] for i in r['artists']], 'name': r['name']}
-                    track_features = sp.audio_features(r['id'])[0]
+                    track_features = self.spotify_auth.audio_features(r['id'])[0]
                     track.update(track_features)
-                    final_track = pd.DataFrame(track, index=[0])
+                    final_track = pd.DataFrame(track)
                     recommendations = recommendations.append(final_track, ignore_index=True)
             except:
                 print("Song not searchable")
@@ -217,10 +190,12 @@ class Playlist():
         # Prepare prediction list
         predicted = intro_track
 
-        # Prepare initial input 
+        # Prepare initial input
         inp = torch.FloatTensor(intro_track[self.feature_list].values)
 
         print("Intro track:", predicted['name'].values[0], '-', ', '.join(predicted['artists'].values[0]))
+
+        hidden_state = model.init_hidden()
 
         for p in tqdm(range(2, playlist_len + 1)):
             print("Track #%s - Generating candidates" % p)
@@ -231,7 +206,9 @@ class Playlist():
             current_mode = current_track['mode']
 
             # Generate output feature set of next song
-            output = model(inp).detach().numpy()
+            output, hidden_state = model(inp, hidden_state)
+
+            output = output.detach().numpy()
 
             # Get mode and key from last song and generate compatible keys and modes
             keys, outer_inner_key = self.harmonic_match(current_key, current_mode)
@@ -277,10 +254,10 @@ class Playlist():
         return predicted
 
     def post_playlist(self):
-        if spotify_auth:
-            # sp = spotipy.Spotify(auth=token)
-            spotify_auth.trace = False
-            tracks = spotify_auth.user_playlist_replace_tracks(
+        if self.token:
+            spotify = spotipy.Spotify(auth=self.token)
+            spotify.trace = False
+            tracks = spotify.user_playlist_replace_tracks(
                 '1247785541', '7x1MY3AW3YCaHoicpiacGv',
                 self.new_playlist['id'].values
             )

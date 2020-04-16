@@ -31,7 +31,7 @@ class LstmEstimator(nn.Module):
 
         
     ## Initialize the hidden and cell states of the LSTM with zeros.
-    def init_hidden (self): 
+    def init_hidden(self):
         return (torch.zeros (self.hidden_layers, 1, self.hidden_layer_dim)),(torch.zeros (self.hidden_layers, 1, self.hidden_layer_dim))
         
     
