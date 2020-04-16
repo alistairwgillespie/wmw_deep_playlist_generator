@@ -1,15 +1,11 @@
-# Utilities
-import subprocess as sb 
+import subprocess as sb
 import sys
-sb.call([sys.executable, "-m", "pip", "install", 'spotipy']) 
-sb.call([sys.executable, "-m", "pip", "install", 'joblib']) 
 import os
 import random
 import numpy as np
 import pandas as pd
 from tqdm.notebook import tqdm
 from scipy.spatial.distance import cdist
-import joblib
 import config
 
 # PyTorch
@@ -20,7 +16,14 @@ import torch.optim as optim
 from model.LstmEstimator import LstmEstimator
 from model.RnnEstimator import RnnEstimator
 
+# If AWS SageMaker:
+
+# Joblib
+sb.call([sys.executable, "-m", "pip", "install", 'joblib'])
+import joblib
+
 # Spotify API
+sb.call([sys.executable, "-m", "pip", "install", 'spotipy'])
 import spotipy
 import spotipy.util as util
 from spotipy.oauth2 import SpotifyClientCredentials
@@ -31,85 +34,86 @@ spotify_id = config.SPOTIFY_ID
 spotify_secret = config.SPOTIFY_SECRET
 
 # Set API scope
-scope='playlist-read-private, playlist-modify-private, playlist-modify-public'
+scope = "playlist-read-private, playlist-modify-private, playlist-modify-public"
 
 # Get auth token
-token = util.prompt_for_user_token(username, 
+token = util.prompt_for_user_token(username,
                                    scope,
                                    client_id=spotify_id,
                                    client_secret=spotify_secret,
-                                   redirect_uri='http://localhost/')
+                                   redirect_uri='http://localhost/'
+                                   )
 
-#Authenticate
+# Authenticate
 sp = spotipy.Spotify(
-    client_credentials_manager = SpotifyClientCredentials(
-        client_id=spotify_id,
-        client_secret=spotify_secret
-    )
+        client_credentials_manager=SpotifyClientCredentials(
+            client_id=spotify_id,
+            client_secret=spotify_secret
+        )
 )
 
 
 class Playlist():
-    def __init__(self, wmw_pool, model_type="LSTM"):
+    def __init__(self, wmw_pool, spotify_auth, model_type="LSTM"):
+        """ Initiates pool of historic tracks, spotify api authentication and 
+            model of choice.
+        """
         self.recommended_track_ids = pd.DataFrame() #list of track ids straight from spotify
         self.trax = [] #all tracks as dict
         self.df = None #this is where the data goes
         self.playlist = None
         self.wmw_pool_df = wmw_pool
-        
+
         # Feature set
         self.feature_list =  ['danceability','energy', 'loudness', 'speechiness', 'acousticness',
                          'instrumentalness', 'liveness', 'valence', 'tempo']
-    
+
         # Setup feature standardisation
         self.std_scaler = joblib.load('artefacts/standard_features.pkl')
-        
+
         # Setup dimensionality reduction for track picking
         self.dim_red = joblib.load('artefacts/dim_red.pkl')
-        
+
         if model_type == "LSTM":
             model = LstmEstimator(9, 30, 1, 9)
             model.load_state_dict(torch.load('artefacts/lstm_model.pth'))
-            
+
         elif model_type == "RNN":
             model = RnnEstimator(9, 30, 9)
             model.load_state_dict(torch.load('artefacts/rnn_model.pth'))
         else:
             print("Please specify either the RNN or LSTM model using the model_type parameter.")
-        
+
         model.eval()
-        
+
         # Start building the new playlist
         self.intro_track = self.get_first_track()
         self.new_playlist = self.predict_playlist(model, self.intro_track)
 
-    
+
     def get_first_track(self):
         """Get first track based on recommendations."""
         # Sample an intro song from the WMW history
         song = self.wmw_pool_df[self.wmw_pool_df['position'] == 1].sample(1).copy()
 
         # Gather a recommendation based on the intro track using spotify
-        song_res = sp.recommendations(seed_tracks = song['id'].values, limit=1)
-        
+        song_res = spotify_auth.recommendations(seed_tracks=song['id'].values, limit=1)
+
         # Gather track freatures from spotify result
         for r in song_res['tracks']:
-            track={}
-            track['id'] = r['id']
-            track['artists'] = [i['name'] for i in r['artists']],
-            track['name'] = r['name']
-            track_features = sp.audio_features(r['id'])[0]
+            track = {'id': r['id'], 'artists': ([i['name'] for i in r['artists']],), 'name': r['name']}
+            track_features = spotify_auth.audio_features(r['id'])[0]
             track.update(track_features)
             self.intro_track = pd.DataFrame(track, index=[0])
 
         # Prepare features
         self.intro_track[self.feature_list] = self.std_scaler.transform(self.intro_track[self.feature_list])
-        
+
         return self.intro_track
-    
+
     def harmonic_match(self, key, mode):
         """Given a key and mode, return compatible keys according to the harmonic wheel."""
-        
+
         # Harmonic Mixing Wheel: Pitch Class 
         # 1A 0 - A flat minor: 8 | 1B 0 - B major: 11
         # 2A 1 - E flat minor: 3 | 2B 1 - F-sharp major: 6
@@ -141,7 +145,7 @@ class Playlist():
         harmonic_keys = np.array([0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11])
 
         # Get compatible key codes
-        comp_keycodes = np.take(harmonic_keys, 
+        comp_keycodes = np.take(harmonic_keys,
                                 [harm_key - 1, harm_key, harm_key + 1],
                                 mode='wrap')
 
@@ -152,82 +156,75 @@ class Playlist():
         inner_outer_key = np.array([np.where(dv[:, int(not bool(mode))] == harm_key)[0][0]])
 
         comp_keys = np.concatenate([comp_keys, inner_outer_key])
-        
+
         return comp_keys, inner_outer_key
-    
-    
+
     def get_position_recommendations(self, track_position):
         """Obtain a dataframe of recommended tracks for a specific track position."""
-        
+
         recommendations = pd.DataFrame()
 
         wmw_sample = random.sample(self.wmw_pool_df['volume'].unique().tolist(), 10)
 
         wmw_sample_df = self.wmw_pool_df[
-            (self.wmw_pool_df['volume'].isin(wmw_sample)) & 
+            (self.wmw_pool_df['volume'].isin(wmw_sample)) &
             (self.wmw_pool_df['position'] == track_position)
         ]
 
-#         wmw_sample_df = wmw_sample_df[].copy()
-
         # Iterate full catalog of WMW songs
         for _, row in wmw_sample_df.iterrows():
-            
+
             song_search = row['track_name'].partition('-')[0] + ' ' + row['artist_name']
-            
+
             try:
 
                 # Query Spotify to get track metadata
-                song_res = sp.search(song_search, limit=1)['tracks']['items'][0]
+                song_res = spotify_auth.search(song_search, limit=1)['tracks']['items'][0]
 
                 # Gather recommendations for each of the past WMW tracks
-                results = sp.recommendations(seed_tracks = [song_res['id']], limit=20)
+                results = spotify_auth.recommendations(seed_tracks = [song_res['id']], limit=20)
 
                 for r in results['tracks']:
-                    track={}
-                    track['id'] = r['id']
-                    track['artists'] = [i['name'] for i in r['artists']],
-                    track['name'] = r['name']
+                    track = {'id': r['id'], 'artists': [i['name'] for i in r['artists']], 'name': r['name']}
                     track_features = sp.audio_features(r['id'])[0]
                     track.update(track_features)
                     final_track = pd.DataFrame(track, index=[0])
                     recommendations = recommendations.append(final_track, ignore_index=True)
-
             except:
                 print("Song not searchable")
 
         recommendations[self.feature_list] = self.std_scaler.transform(recommendations[self.feature_list])
 
         return recommendations
-    
+
     def pick_optimal_track(self, candidates, target):
         """Select the track with the minimum distance between the candidate tracks."""
-        
+
         candidates_reduced = self.dim_red.transform(candidates[self.feature_list])
-        
+
         target_reduced = self.dim_red.transform(target)
-        
+
         next_track_id = np.argmin(cdist(target_reduced, candidates_reduced))
-        
+
         next_track = candidates.iloc[next_track_id]
-        
+
         return next_track
-    
+
 
     def predict_playlist(self, model, intro_track, playlist_len=15):
         """Predict playlist"""
-        
+
         # Prepare prediction list
         predicted = intro_track
-        
+
         # Prepare initial input 
         inp = torch.FloatTensor(intro_track[self.feature_list].values)
-        
+
         print("Intro track:", predicted['name'].values[0], '-', ', '.join(predicted['artists'].values[0]))
 
         for p in tqdm(range(2, playlist_len + 1)):
             print("Track #%s - Generating candidates" % p)
-            
+
             # Important stuff about the last track
             current_track = predicted.iloc[-1]
             current_key = current_track['key']
@@ -241,32 +238,32 @@ class Playlist():
 
             # Get recommended tracks for current track position
             recommendations = self.get_position_recommendations(p)
-            
+
 #             print("Recommendations", recommendations.shape)
-            
+
             # Filter for compatible tracks according to key and mode (harmonic wheel)
             next_tracks_curr_mode = recommendations[
                 (recommendations['key'].isin(keys[:3])) & (recommendations['mode'] == current_mode)
             ]
-            
+
 #             print("Curr mode", next_tracks_curr_mode.shape)
-            
+
             next_tracks_change_mode = recommendations[
                 (recommendations['key'] == keys[-1]) & (recommendations['mode'] == abs(int(not current_mode)))
             ]
-            
+
 #             print("Change mode", next_tracks_change_mode.shape)
-            
+
             candidate_tracks = pd.concat([next_tracks_curr_mode, next_tracks_change_mode]).reset_index(drop=True)
-            
+
             # Ensure no duplicates exist in the playlist
             candidate_tracks = candidate_tracks[~candidate_tracks['id'].isin(predicted['id'])]
-            
+
 #             print("CANDIDATES:", candidate_tracks.shape)
-            
+
             # Pick optimal track
             next_track = self.pick_optimal_track(candidate_tracks, output)
-            
+
             print("Selected:", next_track['name'], '-', ', '.join(next_track['artists']))
 
             # Set new input vector for next song
@@ -274,17 +271,19 @@ class Playlist():
 
             # Append next song to playlist
             predicted = predicted.append(next_track, ignore_index=True)
-            
+
             print('-' * 20)
 
         return predicted
-    
 
     def post_playlist(self):
-        if token:
-            sp = spotipy.Spotify(auth=token)
-            sp.trace = False
-            tracks = sp.user_playlist_replace_tracks('1247785541', '7x1MY3AW3YCaHoicpiacGv', self.new_playlist['id'].values)
+        if spotify_auth:
+            # sp = spotipy.Spotify(auth=token)
+            spotify_auth.trace = False
+            tracks = spotify_auth.user_playlist_replace_tracks(
+                '1247785541', '7x1MY3AW3YCaHoicpiacGv',
+                self.new_playlist['id'].values
+            )
             print("Posting latest Wilson's FM.")
         else:
             print("Can't get token for", username)
