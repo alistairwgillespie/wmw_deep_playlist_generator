@@ -5,22 +5,33 @@ import torch.nn as nn
 
 
 class RnnEstimator(nn.Module):
+    """
+    RNN Estimator for generating sequences of target variables.
+    """
     
-    def __init__(self, input_size, hidden_size, output_size):
+    def __init__(self, input_features=9, hidden_dim=30, n_layers=1, output_dim=9):
         super(RnnEstimator, self).__init__()
 
-        self.hidden_size = hidden_size
-
-        self.i2h = nn.Linear(input_size + hidden_size, hidden_size)
-        self.i2o = nn.Linear(input_size + hidden_size, output_size)
+        self.hidden_dim = hidden_dim
+        self.hidden_layers = n_layers
         
-    
-    ## Define the feedforward behavior of the network
-    def forward(self, input_sequence, hidden):
-        combined = torch.cat((input_sequence, hidden), 1)
-        hidden = self.i2h(combined)
-        output = self.i2o(combined)
-        return output, hidden
-    
+        # RNN Layer
+        self.rnn = nn.RNN(input_features, hidden_dim, n_layers)
+        
+        # Fully connected layer
+        self.fc = nn.Linear(hidden_dim, output_dim)
+        
+    ## Initialize the hidden and cell states of the LSTM with zeros.
     def init_hidden(self):
-        return torch.zeros(1, self.hidden_size)
+        return torch.zeros(self.hidden_layers, 1, self.hidden_dim)
+        
+    ## Define the feedforward behavior of the network
+    def forward(self, input, hidden_state):
+        
+        # Passing in the input and hidden state into the model and obtaining outputs
+        output, hidden_state = self.rnn(input.view(len(input) ,1, -1), hidden_state)
+        
+        # Reshaping the outputs such that it can be fit into the fully connected layer
+        output = self.fc(output.contiguous().view(len(input), -1))
+        
+        return output, hidden_state

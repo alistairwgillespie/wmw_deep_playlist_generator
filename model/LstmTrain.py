@@ -43,7 +43,6 @@ def model_fn(model_dir):
     print("Done loading model.")
     return model
 
-
 # Gets training data in batches from the train.csv file
 def _get_train_data_loader(batch_size, training_dir):
     print("Get train data loader.")
@@ -52,8 +51,6 @@ def _get_train_data_loader(batch_size, training_dir):
     
     return DataLoader(dataset, batch_size=batch_size, shuffle=False)
 
-
-# Provided training function
 def train(model, train_loader, epochs, criterion, optimizer, device):
     """
     This is the training method that is called by the PyTorch training script. The parameters
@@ -94,7 +91,6 @@ def train(model, train_loader, epochs, criterion, optimizer, device):
         if epoch % 50 == 0:
             print('Epoch: {}/{}.............'.format(epoch, epochs), end=' ')
             print("Loss: {:.4f}".format(total_loss))
-
 
 if __name__ == '__main__':
     

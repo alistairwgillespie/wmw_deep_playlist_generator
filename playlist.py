@@ -191,7 +191,7 @@ class Playlist():
         predicted = intro_track
 
         # Prepare initial input
-        inp = torch.FloatTensor(intro_track[self.feature_list].values)
+        input = torch.FloatTensor(intro_track[self.feature_list].values)
 
         print("Intro track:", predicted['name'].values[0], '-', ', '.join(predicted['artists'].values[0]))
 
@@ -206,7 +206,7 @@ class Playlist():
             current_mode = current_track['mode']
 
             # Generate output feature set of next song
-            output, hidden_state = model(inp, hidden_state)
+            output, hidden_state = model(input, hidden_state)
 
             output = output.detach().numpy()
 
@@ -241,10 +241,10 @@ class Playlist():
             # Pick optimal track
             next_track = self.pick_optimal_track(candidate_tracks, output)
 
-            print("Selected:", next_track['name'], '-', ', '.join(next_track['artists']))
+            print("Selected:", next_track['name'], '-', next_track['artists'])
 
             # Set new input vector for next song
-            inp = torch.FloatTensor([next_track[self.feature_list]])
+            input = torch.FloatTensor([next_track[self.feature_list]])
 
             # Append next song to playlist
             predicted = predicted.append(next_track, ignore_index=True)
@@ -262,5 +262,6 @@ class Playlist():
                 self.new_playlist['id'].values
             )
             print("Posting latest Wilson's FM.")
+            print('-' * 20)
         else:
             print("Can't get token for", username)

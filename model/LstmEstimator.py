@@ -6,10 +6,9 @@ import torch.nn as nn
 
 class LstmEstimator(nn.Module):
     """
-    LSTM Estimator for generating sequential-based track target variables.
+    LSTM Estimator for generating sequences of target variables.
     """
 
-    ## Define the init function, the input params are required (for loading code in train.py to work)
     def __init__(self, input_features=9, hidden_dim=30, n_layers=1, output_dim=9):
         """s
         Initialize the model by setting up linear layers.
@@ -20,31 +19,31 @@ class LstmEstimator(nn.Module):
         """
         super(LstmEstimator, self).__init__()
         
-        self.hidden_layer_dim = hidden_dim
+        self.hidden_dim = hidden_dim
         self.hidden_layers = n_layers
         
         # The LSTM takes track features as inputs, and outputs hidden states
         # with dimensionality hidden_dim
-        self.lstm = nn.LSTM(input_features, hidden_dim, n_layers)
+        self.lstm = nn.LSTM(input_features, self.hidden_dim, n_layers)
         
         self.hidden2target = nn.Linear(hidden_dim, output_dim)
 
         
     ## Initialize the hidden and cell states of the LSTM with zeros.
     def init_hidden(self):
-        return (torch.zeros (self.hidden_layers, 1, self.hidden_layer_dim)),(torch.zeros (self.hidden_layers, 1, self.hidden_layer_dim))
+        return (torch.zeros (self.hidden_layers, 1, self.hidden_dim)),(torch.zeros (self.hidden_layers, 1, self.hidden_dim))
         
     
     ## Define the feedforward behavior of the network
-    def forward(self, input_sequence, hidden_cell):
+    def forward(self, input, hidden_cell):
         """
-        Perform a forward pass of our model on input features, x.
+        Perform a forward pass of our model on input features, track.
         :param input_track: A batch of input features of size (batch_size, input_features)
         :return: A single, sigmoid-activated value as output
         """
         
         # define the feedforward behavior
-        lstm_out, hidden_cell = self.lstm(input_sequence.view(len(input_sequence) ,1, -1), hidden_cell)
-        target_feat = self.hidden2target(lstm_out.view(len(input_sequence), -1))
+        lstm_out, hidden_cell = self.lstm(input.view(len(input) ,1, -1), hidden_cell)
+        output = self.hidden2target(lstm_out.view(len(input), -1))
         
-        return target_feat, hidden_cell
+        return output, hidden_cell
