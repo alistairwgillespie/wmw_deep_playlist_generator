@@ -4,6 +4,10 @@
 
 # Wilson's FM - A Deep Playlist Generator
 
+[![MIT License](https://img.shields.io/apm/l/atomic-design-ui.svg?)](https://github.com/tterb/atomic-design-ui/blob/master/LICENSEs)[![made-with-python](https://img.shields.io/badge/Made%20with-Python-1f425f.svg)](https://www.python.org/)
+
+
+
 ## Background
 
 Wilson's FM is a project born out of a passion for curating playlists that move people as they go about their day; whether it be getting ready for work, setting foot in the gym or going for a walk, music can make things extra special.  
