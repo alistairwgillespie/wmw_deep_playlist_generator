@@ -45,7 +45,7 @@ conda install pytorch torchvision cpuonly -c pytorch
 
 ## Structure
 
-The project [code](https://github.com/alistairwgillespie/wmw_deep_playlist_generator) will be structured - subject to change - as follows:
+The project is structured like so:
 
 ```bash
 .
@@ -62,7 +62,7 @@ The project [code](https://github.com/alistairwgillespie/wmw_deep_playlist_gener
 |-- img/
     |-- ...
 |-- .gitignore # ...
-|-- 0_Setup_Database.ipynb # Initial data ingestion and analaysis
+|-- 0_Setup_Database.ipynb # Databased Setup for future use
 |-- 1_Explore.ipynb # Initial data ingestion and analaysis
 |-- 2_Feature_Engineering.ipynb # Feature preparation and further analysis
 |-- 3_Train_Deploy_LOCAL.ipynb # Pipeline for training each model locally
@@ -75,8 +75,5 @@ The project [code](https://github.com/alistairwgillespie/wmw_deep_playlist_gener
 |-- PROPOSAL.md # Project Proposal
 |-- README.md # ...
 |-- REPORT.md # Project Report
-|-- unit_tests.py # Coming soon...
-
 ```
 
-#### 
