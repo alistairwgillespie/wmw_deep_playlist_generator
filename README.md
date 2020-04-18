@@ -1,4 +1,4 @@
-![](img/wilsons_fm.jpg)
+![](img/wilsons_fm.jpg =600x600)
 # Wilson's FM - A Deep Playlist Generator
 
 ## Background
