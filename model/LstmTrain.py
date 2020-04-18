@@ -12,7 +12,7 @@ import torch.optim as optim
 import torch.utils.data
 from torch.utils.data import DataLoader
 
-from LstmEstimator import LstmEstimator
+from LSTMEstimator import LSTMEstimator
 from PlaylistDataset import PlaylistDataset
 
 
@@ -30,7 +30,7 @@ def model_fn(model_dir):
 
     # Determine the device and construct the model.
     device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
-    model = LstmEstimator(model_info['input_features'], model_info['hidden_dim'], model_info['hidden_layers'], model_info['output_dim'])
+    model = LSTMEstimator(model_info['input_features'], model_info['hidden_dim'], model_info['hidden_layers'], model_info['output_dim'])
 
     # Load the stored model parameters.
     model_path = os.path.join(model_dir, 'lstm.pth')
@@ -51,9 +51,10 @@ def _get_train_data_loader(batch_size, training_dir):
     
     return DataLoader(dataset, batch_size=batch_size, shuffle=False)
 
+# Training function for LSTM
 def train(model, train_loader, epochs, criterion, optimizer, device):
     """
-    This is the training method that is called by the PyTorch training script. The parameters
+    This is the training method that is called by the PyTorch training script of the LSTM model. The parameters
     passed are as follows:
     model        - The PyTorch model that we wish to train.
     train_loader - The PyTorch DataLoader that should be used during training.
@@ -63,7 +64,8 @@ def train(model, train_loader, epochs, criterion, optimizer, device):
     device       - Where the model and data should be loaded (gpu or cpu).
     """
     
-    # training loop is provided
+    model.train() # Make sure that the model is in training mode.
+    
     for epoch in range(1, epochs + 1):
         
         for i, batch in enumerate(train_loader):
@@ -85,9 +87,9 @@ def train(model, train_loader, epochs, criterion, optimizer, device):
                 loss.backward(retain_graph=True)
                 optimizer.step()
                 cum_loss += loss.data.item()
-
-            total_loss = cum_loss / len(batch[0])
             
+            total_loss = cum_loss / len(batch[0])
+                   
         if epoch % 50 == 0:
             print('Epoch: {}/{}.............'.format(epoch, epochs), end=' ')
             print("Loss: {:.4f}".format(total_loss))
@@ -138,7 +140,7 @@ if __name__ == '__main__':
     train_loader = _get_train_data_loader(args.batch_size, args.data_dir)
       
     ## Build the model by passing in the input params
-    model = LstmEstimator(args.input_features, args.hidden_dim, args.hidden_layers, args.output_dim).to(device)
+    model = LSTMEstimator(args.input_features, args.hidden_dim, args.hidden_layers, args.output_dim).to(device)
 
     ## Define an optimizer andfunction for training
     optimizer = optim.Adam(model.parameters(), args.lr)

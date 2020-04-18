@@ -111,6 +111,9 @@ ENV/
 env.bak/
 venv.bak/
 
+# Private stuff
+.cache-gillaw06@gmail.com
+
 # Spyder project settings
 .spyderproject
 .spyproject

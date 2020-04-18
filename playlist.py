@@ -13,8 +13,8 @@ import torch
 import torch.optim as optim
 
 # Models
-from model.LstmEstimator import LstmEstimator
-from model.RnnEstimator import RnnEstimator
+from model.LSTMEstimator import LSTMEstimator
+from model.RNNEstimator import RNNEstimator
 
 # If AWS SageMaker:
 # Spotify API
@@ -52,11 +52,11 @@ class Playlist():
         self.dim_red = joblib.load('artefacts/dim_red.pkl')
 
         if model_type == "LSTM":
-            model = LstmEstimator(9, 30, 1, 9)
+            model = LSTMEstimator(9, 30, 1, 9)
             model.load_state_dict(torch.load('artefacts/lstm_model.pth'))
 
         elif model_type == "RNN":
-            model = RnnEstimator(9, 30, 9)
+            model = RNNEstimator(9, 30, 9)
             model.load_state_dict(torch.load('artefacts/rnn_model.pth'))
         else:
             print("Please specify either the RNN or LSTM model using the model_type parameter.")
@@ -258,7 +258,7 @@ class Playlist():
             spotify = spotipy.Spotify(auth=self.token)
             spotify.trace = False
             tracks = spotify.user_playlist_replace_tracks(
-                '1247785541', '7x1MY3AW3YCaHoicpiacGv',
+                config.SPOTIFY_USER_ID, config.SPOTIFY_PLAYLIST_ID,
                 self.new_playlist['id'].values
             )
             print("Posting latest Wilson's FM.")

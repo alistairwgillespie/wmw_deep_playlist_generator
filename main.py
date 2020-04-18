@@ -1,27 +1,9 @@
 import subprocess as sb
 import sys
 import os
-# import random
-# import numpy as np
 import pandas as pd
-# from tqdm.notebook import tqdm
-# from scipy.spatial.distance import cdist
 import config
 from playlist import Playlist
-
-# PyTorch
-# import torch
-# import torch.optim as optim
-
-# Models
-# from model.LstmEstimator import LstmEstimator
-# from model.RnnEstimator import RnnEstimator
-
-# If AWS SageMaker:
-
-# Joblib
-# sb.call([sys.executable, "-m", "pip", "install", 'joblib'])
-# import joblib
 
 # Spotify API
 sb.call([sys.executable, "-m", "pip", "install", 'spotipy'])

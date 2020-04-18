@@ -12,7 +12,7 @@ import torch.optim as optim
 import torch.utils.data
 from torch.utils.data import DataLoader
 
-from RnnEstimator import RnnEstimator
+from RNNEstimator import RNNEstimator
 from PlaylistDataset import PlaylistDataset
 
 
@@ -21,7 +21,7 @@ def model_fn(model_dir):
     print("Loading model.")
 
     # First, load the parameters used to create the model.
-    model_info = {}
+    model_info = {}s
     model_info_path = os.path.join(model_dir, 'rnn_info.pth')
     with open(model_info_path, 'rb') as f:
         model_info = torch.load(f)
@@ -30,7 +30,7 @@ def model_fn(model_dir):
 
     # Determine the device and construct the model.
     device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
-    model = LSTMEstimator(model_info['input_features'], model_info['hidden_dim'], model_info['output_dim'])
+    model = RNNEstimator(model_info['input_features'], model_info['hidden_dim'], model_info['output_dim'])
 
     # Load the stored model parameters.
     model_path = os.path.join(model_dir, 'rnn.pth')
@@ -136,7 +136,7 @@ if __name__ == '__main__':
     train_loader = _get_train_data_loader(args.batch_size, args.data_dir)
       
     ## Build the model by passing in the input params
-    model = RnnEstimator(args.input_features, args.hidden_dim, args.output_dim).to(device)
+    model = RNNEstimator(args.input_features, args.hidden_dim, args.output_dim).to(device)
 
     ## Define an optimizer andfunction for training
     optimizer = optim.Adam(model.parameters(), args.lr)

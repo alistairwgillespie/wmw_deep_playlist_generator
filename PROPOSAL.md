@@ -1,5 +1,5 @@
 # Machine Learning Engineer Nanodegree
-## Capstone Proposal
+## Capstone Report
 Alistair Wilson Gillespie  
 March 3, 2020
 

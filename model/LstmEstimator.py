@@ -4,7 +4,7 @@ import torch.nn.functional as F
 import torch.nn as nn
 
 
-class LstmEstimator(nn.Module):
+class LSTMEstimator(nn.Module):
     """
     LSTM Estimator for generating sequences of target variables.
     """
@@ -17,14 +17,14 @@ class LstmEstimator(nn.Module):
         :param hidden_dim: helps define the number of nodes in the hidden layer(s)
         :param output_dim: the number of outputs you want to produce
         """
-        super(LstmEstimator, self).__init__()
+        super(LSTMEstimator, self).__init__()
         
         self.hidden_dim = hidden_dim
         self.hidden_layers = n_layers
         
         # The LSTM takes track features as inputs, and outputs hidden states
         # with dimensionality hidden_dim
-        self.lstm = nn.LSTM(input_features, self.hidden_dim, n_layers)
+        self.lstm = nn.LSTM(input_features, self.hidden_dim, n_layers, dropout=0.3)
         
         self.hidden2target = nn.Linear(hidden_dim, output_dim)
 
