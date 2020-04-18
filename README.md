@@ -1,4 +1,5 @@
-![](img/wilsons_fm.jpg =600x600)
+<img src="img/wilsons_fm.jpg" data-canonical-src="img/wilsons_fm.jpg" width="500" height="500" />
+
 # Wilson's FM - A Deep Playlist Generator
 
 ## Background
