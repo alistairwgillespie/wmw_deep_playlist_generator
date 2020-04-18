@@ -1,4 +1,4 @@
-![](C:\Users\gilleal\Pictures\wilsons_fm (2).jpg )
+![](img/wilsons_fm.jpg)
 # Wilson's FM - A Deep Playlist Generator
 
 ## Background
