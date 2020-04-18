@@ -1,4 +1,6 @@
-<img align="center" src="img/wilsons_fm.jpg" data-canonical-src="img/wilsons_fm.jpg" width="500" height="500" />
+<p align="center"><img align="center" src="img/wilsons_fm.jpg" data-canonical-src="img/wilsons_fm.jpg" width="300" height="300" /></p>
+
+
 
 # Wilson's FM - A Deep Playlist Generator
 
