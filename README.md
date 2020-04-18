@@ -40,4 +40,40 @@ Install latest PyTorch for local and cpu only
 conda install pytorch torchvision cpuonly -c pytorch
 ```
 
-## Proposal	
+## Structure
+
+The project [code](https://github.com/alistairwgillespie/wmw_deep_playlist_generator) will be structured - subject to change - as follows:
+
+```bash
+.
+|-- data/
+    |-- tensor_train.csv # Training dataset
+    |-- wmw.csv # Pool of Wilson's Morning Wake Up tracks to date
+|-- model/
+    |-- LSTMEstimator.py # LSTM Model with initialisation and feed-forward
+    |-- LSTMTrain.py # Code for training the LSTM on AWS SageMaker
+    |-- PlaylistDataset.py # Dataset Class
+    |-- Predict.py # Code for predictions on AWS SageMaker
+    |-- RNNEstimator.py # RNN Model with initialisation and feed-forward
+    |-- RNNTrain.py # Code for training the RNN on AWS SageMaker
+|-- img/
+    |-- ...
+|-- .gitignore # ...
+|-- 0_Setup_Database.ipynb # Initial data ingestion and analaysis
+|-- 1_Explore.ipynb # Initial data ingestion and analaysis
+|-- 2_Feature_Engineering.ipynb # Feature preparation and further analysis
+|-- 3_Train_Deploy_LOCAL.ipynb # Pipeline for training each model locally
+|-- 4_Train_Deploy_AWS.ipynb # Pipeline for training each model on AWS SageMaker
+|-- 5_Generate.ipynb # Generates a playlist and posts to Spotify
+|-- LICENSE # MIT License
+|-- local_env.yml # Environment details
+|-- main.py # Pipeline that generates a playlist and posts to Spotify via CLI
+|-- playlist.py # Playlist class
+|-- PROPOSAL.md # Project Proposal
+|-- README.md # ...
+|-- REPORT.md # Project Report
+|-- unit_tests.py # Coming soon...
+
+```
+
+#### 
