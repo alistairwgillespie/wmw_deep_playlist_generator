@@ -1,32 +1,28 @@
-## Wilson' FM - Deep Playlist Generator
+## Wilson's FM - Deep Playlist Generator
 
 Alistair Wilson Gillespie  
-March 3, 2020
+April 19, 2020
 
 ## Machine Learning Engineer Capstone Report	
 ### Background
-Spotify is the leading incumbent of the music streaming industry boasting a dominant market share. To satisfy it's ever-evolving audience and fend off competitors, it harnesses an army  of engineers and data scientists to  infuse recommendation systems throughout the Spotify interface to deliver unique and dynamic listening experiences tailored to its users' preferences.
-
-Wilson's Morning Wake Up (WMW) is a Spotify playlist I curate each month; the playlist is designed 
-to build tempo as the listener starts their day with no more than 15 tracks; and explores a range of genres including house, classical, funk and jazz, to name a few. Ultimately, WMW is structured in a way as to deliver harmonic sequences of tunes that meld into an hour of blissful listening.
+Wilson's Morning Wake Up (WMW) is a Spotify playlist I curate each month; the playlist is designed to
+assist listeners in starting their day with no more than 15 tracks; and explores a range of genres including house, classical, funk and jazz, to name a few. WMW is structured in a way as to gently build in tempo and intensity - commencing with classical and minimalistic tracks - then introducing dance, house and electronic tracks later in the playlist, culminating in an hour or so of blissful listening.
 
 ### Define
-The objective of this project is to build a deep playlist generator capable of producing playlists of the same quality and structure as Wilson's Morning Wake Up. The solution will perform the following tasks:
+Quality playlists take time and effort to curate. I thought it would be cool to train a model to generate beautiful playlists each day. This project is an attempt to generate playlists of the same quality and structure as WMW.
 
-1. Extract and transform track metadata from all the Wilson's Morning Wake Up volumes 
-   to-date using the Spotify for Developers API
+To be effective, the project needed to perform the following tasks:
 
-2. Train an estimator that generates sequence-based track features
-3. Extract a batch of recommended tracks from a set of genres using Spotify's API
-
-4. Generate a playlist of 15 tracks using the estimator and recommended tracks
-
-Moreover, the solution should generalize to not only my own playlists but any other user-defined playlists with the aim of providing playlist curators with a tool for creating quality mixes, more frequently.
+1. Extract metadata about all of the WMW playlists to date.
+2. Transform track metadata.
+3. Train a sequence estimator that learns the traits and relationships of each playlist.
+4. Create a playlist using the estimator and Spotify's recommendation API.
+5. Post a playlist to Spotify at Wilson's FM.
 
 ### Analyze
-The WMW dataset comprises 38 volumes each containing no more than 15 tracks. There is a total of 554 tracks in the dataset. The data is extracted via the Spotify for developers API and includes a set of audio features engineered by the Spotify team. Furthermore, I've included an additional attribute for track position.
+The WMW dataset comprises 35 volumes each containing no more than 15 tracks. There is a total of 554 tracks in the dataset. The dataset was extracted using the Spotify for Developers API and includes a set of audio features engineered by the Spotify team. Furthermore, I've included an additional attribute for track position for guiding the sequence models discussed later in this paper.
 
-The following features have been selected to extract the appropriate information related to each track and playlist:
+The following features were selected to represent each track:
 
 - *acousticness*: confidence score of whether the track is acoustic (float)
 - *danceability*: how suitable the track is for dancing based on a combination of musical elements (float)
@@ -41,29 +37,108 @@ The following features have been selected to extract the appropriate information
 - *genres*: a list of genres used to classify the album in which the track features (array of strings)
 - *song position*: position of the track in the respective WMW playlist (integer)
 
-Figure 1 illustrates the distribution of the above features over the range of track positions for all Wilson Morning Wake Up volumes created. As an example, loudness and energy clearly trend upwards for later track positions.
+Figure 1 illustrates the distribution of the above features against each track position for all WMW volumes. In general, each feature tends to trend upwards as the playlist progresses, as depicted below.
 
 <p align="center">
   <img src="img/eda_swarm_features.png">
-  <center><b>Fig. 1: Mean features values against track position </b></center>
+  <center><b>Fig. 1: Mean feature values against each track position for all WMW volumes</b></center>
 </p>
 
 Further information regarding the audio features can be found [here](https://developer.spotify.com/documentation/web-api/reference/tracks/get-several-audio-features/).
 
-In addition to the track dataset, the solution will require a batch of candidate tracks to select from to generate a new playlist. Again, the Spotify API will be used to gather recommended tracks based on seeded artists, genres and tracks. In the future, as an extension of this project, collaborative filtering may be considered for sourcing richer sets of recommended tracks.
-
-### Implement
-The WMW deep playlist generator is a deep sequence model that leverages a Recurrent Neural Network (RNN) architecture. RNN architectures are typically structured as chains where information persists - to some degree - as it flows through a sequence of input-output layers. This is quite powerful when predicting sequences of target outputs that are dependent on context or previous states. The model will employ a 'many-to-many' mapping of input-output vectors to generate a set of 'n-defined' tracks (no more than 15 in length). The output vectors at each song position in the sequence will be used to select a track from the recommended tracks list. To evaluate the model an appropriate estimator loss function will be defined.
+Principle Component Analysis (PCA) was used to reduce the number of dimensions for analysis and track comparisons. The data was transformed and projected into a 3-dimensional space to give a visual representation of tracks at each position. This view (in Figure 2) provides insights about the relative variance of tracks selected at each position. Track positions 7, 8 , 11 and 12 tend to cluster closely together and resemble higher degrees of feature similarity. These tracks tend to be house and dance tracks of higher tempo. Conversely, track positions 1, 2 and 3 show higher variance which is interesting given position 1 is always a classical track and positions 2 and 3 are generally minimal electronic tracks. 
 
 
 
 <p align="center">
-  <img src="img/sequence.jpeg">
-  <center><b>Fig. 2: Examples showing the flexible nature of Recurrent Neural Networks (<a href="http://karpathy.github.io/2015/05/21/rnn-effectiveness/">Andrej Karpathy 2015</a>)</b></center>
+  <img src="img/track_position_analysis.png">
+  <center><b>Fig. 2: PCA analysis at each track position for all WMW playlists</b></center>
+</p>
+
+Next, a view of each WMW volume was produced, pictured in the following figure. This view shows how each playlist moves through feature space over its duration. Interestingly, when I started this project, I anticipated that each playlist would resemble similar trends and behaviour. This view clearly shows that WMW volumes can vary significantly in feature composition and traits. For example, Volume 13 traverse in multiple directions as it plays out, however, Volume 27 tends to traverse laterally.
+
+<p align="center">
+  <img src="img/volume_analysis.png">
+  <center><b>Fig. 3: PCA analysis of a sample of volumes</b></center>
+</p>
+
+Finally, I decided to look at all of the WMW volumes in a single plot to try and discern any relationships or clusters of tracks (Figure 4). I wanted to test whether tracks at a given position were situated close to one another in feature space. Simply eyeballing the below chart shows little signs of distinct groups of tracks at a particular position. Rather there is quite a lot of variance across the whole sequence in features space. The only trait I can see is that a number of tracks at position 1 are positioned to the right as clear outliers.
+
+<p align="center">
+  <img src="img/all-volumes.png">
+  <center><b>Fig. 4: PCA analysis of all volumes</b></center>
+</p>
+
+TODO: Analysis of linear combinations of features in each component
+
+### Implement
+
+Python was used for this project along with famous tools such as PyTorch, Pandas and Numpy. 
+
+The project was structured like so:
+
+```bash
+.
+|-- artefacts/ # Save models and artefacts here
+	|-- dim_red.pkl # Principal Component Analysis
+	|-- lstm_model.pth # Long Short-Term Memory Neural Network
+	|-- rnn_model.pth # Vanilla Recurrent Neural Network
+	|-- standard_features.pkl # Standard Scaler
+|-- data/
+    |-- tensor_train.csv # Training dataset
+    |-- wmw.csv # Pool of Wilson's Morning Wake Up tracks to date
+|-- model/
+    |-- LSTMEstimator.py # LSTM Model with initialisation and feed-forward
+    |-- LSTMTrain.py # Code for training the LSTM on AWS SageMaker
+    |-- PlaylistDataset.py # Dataset Class
+    |-- Predict.py # Code for predictions on AWS SageMaker
+    |-- RNNEstimator.py # RNN Model with initialisation and feed-forward
+    |-- RNNTrain.py # Code for training the RNN on AWS SageMaker
+|-- img/
+    |-- ...
+|-- .gitignore # ...
+|-- 0_Setup_Database.ipynb # Databased Setup for future use
+|-- 1_Explore.ipynb # Initial data ingestion and analaysis
+|-- 2_Feature_Engineering.ipynb # Feature preparation and further analysis
+|-- 3_Train_Deploy_LOCAL.ipynb # Pipeline for training each model locally
+|-- 4_Train_Deploy_AWS.ipynb # Pipeline for training each model on AWS SageMaker
+|-- 5_Generate.ipynb # Generates a playlist and posts to Spotify
+|-- LICENSE # MIT License
+|-- local_env.yml # Environment details
+|-- main.py # Pipeline that generates a playlist and posts to Spotify via CLI
+|-- playlist.py # Playlist class
+|-- PROPOSAL.md # Project Proposal
+|-- README.md # ...
+|-- REPORT.md # Project Report
+```
+
+The dataset was prepared in a way to ensure that each track was mapped to the following track it precedes in the respective WMW volumes. The green boxes in Figure 2 show this mapping as the model moves vertically and to the right. This was executed by mirroring the features of each track, shifting the data by a single position backwards, and lastly, mapping the tracks to original track dataset. A StandardScaler was used to standardize the feature set and ensure that the model does not bias a particular feature due to variance.
+
+ A PlaylistDataset class was built to serve as an iterable over the dataset. A DataLoader was then used to fetch batches - equivalent to the size of a playlist - from a PlaylistDataset object during training time. A fixed-sequence of 12 tracks was used instead of a variable-sequence for simplicity. The reason for this being that WMW volumes to date have ranged from 12 tracks, all the way up to 16 tracks.
+
+The Mean Absolute Error - alternatively called the L1Loss in PyTorch - was selected to evaluate the performance of each model during training time. For test time, the resulting playlist was evaluated by listening to it on Spotify. MAE served as an indicator of the model fit to the data. It is worth noting that, ideally, a little bit of error is tolerable given it could enable "creativity" or new and unique track selections during playlist creation. However, the true indicator of performance is the listening experience, as a result, each playlist was "tested" in the living room of our house by my housemates and I. This was simply a qualitative analysis.
+
+<p align="center">
+  <img src="img/mae.png">
+<center><b>Fig. 5:  Notation for Mean Average Error</b></center>
+</p>
+
+To achieve the objective of predicting the attributes of the next track given the current track, it was decided that a many-to-many recurrent neural network would suffice (Figure 2). At each epoch, the model was trained on the entire dataset. The dataset was iterated over, a single batch at a time. At each batch, the model's hidden state was initialised with zeros. Then each track in the batch was provided as a forward pass, one at a time, until the batch was exhausted. At each forward pass, the model produced an output along with an updated hidden state. The output was then compared with the ground truth to calculate the MAE loss. The output and hidden state were then used as input for the next prediction. The average MAE loss for the entire batch was then calculated and stored for record. 
+
+A Vanilla Recurrent Neural Network (RNN) was chosen as the baseline model and a Long Short-Term Memory Model (LSTM) was chosen as the alternative model. Each model followed the aforementioned training process.
+
+<p align="center">
+  <img src="img/wilson-fm-many-to-many.png", width=400px, height=400px>
+  <center><b>Fig. 6: Many-to-many RNN: the model's hidden state (h) is initiated then each following track (t+1) is predicted using the current hidden state and current track (t) as input until the last track position.</b></center>
 </p> 
 
+
+
+
+
+
 ### Results
-It is expected that the solution will pick tracks, conditioned by the context in which they appear, to deliver harmonic track sequences that closely resemble the manually crafted volumes to date. In theory, Vanilla RNNs can persist such information across sequences of input data but in practice commonly fall short. Then came along Long Short-Term Memory networks capable of persisting longer-term contexts of information. Christoper Olah's insightful images pictured below display the differences in how Vanilla RNNs and LSTMs persist information across sequences of inputs and outputs:
+It is expected that the solution will pick tracks, conditioned by the context in which they appear, to deliver harmonic track sequences that closely rese	mble the manually crafted volumes to date. In theory, Vanilla RNNs can persist such information across sequences of input data but in practice commonly fall short. Then came along Long Short-Term Memory networks capable of persisting longer-term contexts of information. Christoper Olah's insightful images pictured below display the differences in how Vanilla RNNs and LSTMs persist information across sequences of inputs and outputs:
 
 
 
@@ -105,29 +180,39 @@ The workflow will be structured in a way that is closely aligned to the [Team Da
 
 The project [code](https://github.com/alistairwgillespie/wmw_deep_playlist_generator) will be structured - subject to change - as follows:
 
-```
+```bash
 .
+|-- artefacts/ # Save models and artefacts here
+	|-- dim_red.pkl # Principal Component Analysis
+	|-- lstm_model.pth # Long Short-Term Memory Neural Network
+	|-- rnn_model.pth # Vanilla Recurrent Neural Network
+	|-- standard_features.pkl # Standard Scaler
 |-- data/
-    |-- wmw_tracks.csv
+    |-- tensor_train.csv # Training dataset
+    |-- wmw.csv # Pool of Wilson's Morning Wake Up tracks to date
 |-- model/
-    |-- estimator_LSTM.py
-    |-- estimator_RNN.py
-    |-- predict.py
-    |-- train.py
-    |-- requirements.txt
+    |-- LSTMEstimator.py # LSTM Model with initialisation and feed-forward
+    |-- LSTMTrain.py # Code for training the LSTM on AWS SageMaker
+    |-- PlaylistDataset.py # Dataset Class
+    |-- Predict.py # Code for predictions on AWS SageMaker
+    |-- RNNEstimator.py # RNN Model with initialisation and feed-forward
+    |-- RNNTrain.py # Code for training the RNN on AWS SageMaker
 |-- img/
     |-- ...
-|-- .gitignore
-|-- 1_Explore.ipynb
-|-- 2_Feature_Engineering.ipynb
-|-- 3_Train_Deploy.ipynb
-|-- LICENSE
-|-- local_env.yml
-|-- PROPOSAL.md
-|-- README.md
-|-- unit_tests.py
-|-- utilities.py
-
+|-- .gitignore # ...
+|-- 0_Setup_Database.ipynb # Databased Setup for future use
+|-- 1_Explore.ipynb # Initial data ingestion and analaysis
+|-- 2_Feature_Engineering.ipynb # Feature preparation and further analysis
+|-- 3_Train_Deploy_LOCAL.ipynb # Pipeline for training each model locally
+|-- 4_Train_Deploy_AWS.ipynb # Pipeline for training each model on AWS SageMaker
+|-- 5_Generate.ipynb # Generates a playlist and posts to Spotify
+|-- LICENSE # MIT License
+|-- local_env.yml # Environment details
+|-- main.py # Pipeline that generates a playlist and posts to Spotify via CLI
+|-- playlist.py # Playlist class
+|-- PROPOSAL.md # Project Proposal
+|-- README.md # ...
+|-- REPORT.md # Project Report
 ```
 #### Data Extraction and Exploratory Data Analysis
 
