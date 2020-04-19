@@ -23,7 +23,7 @@ def model_fn(model_dir):
         model_info = torch.load(f)
 
     print("model_info: {}".format(model_info)):wq
-:wq
+
     # Determine the device and construct the model.
     device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
     model = BinaryClassifier(model_info['input_features'], model_info['hidden_dim'], model_info['output_dim'])

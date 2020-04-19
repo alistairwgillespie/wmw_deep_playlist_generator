@@ -1,16 +1,16 @@
-# Machine Learning Engineer Nanodegree
-## Capstone Proposal
+## Wilson' FM - Deep Playlist Generator
+
 Alistair Wilson Gillespie  
 March 3, 2020
 
-## Proposal	
-### Domain Background
+## Machine Learning Engineer Capstone Report	
+### Background
 Spotify is the leading incumbent of the music streaming industry boasting a dominant market share. To satisfy it's ever-evolving audience and fend off competitors, it harnesses an army  of engineers and data scientists to  infuse recommendation systems throughout the Spotify interface to deliver unique and dynamic listening experiences tailored to its users' preferences.
 
 Wilson's Morning Wake Up (WMW) is a Spotify playlist I curate each month; the playlist is designed 
 to build tempo as the listener starts their day with no more than 15 tracks; and explores a range of genres including house, classical, funk and jazz, to name a few. Ultimately, WMW is structured in a way as to deliver harmonic sequences of tunes that meld into an hour of blissful listening.
 
-### Problem Statement
+### Define
 The objective of this project is to build a deep playlist generator capable of producing playlists of the same quality and structure as Wilson's Morning Wake Up. The solution will perform the following tasks:
 
 1. Extract and transform track metadata from all the Wilson's Morning Wake Up volumes 
@@ -23,7 +23,7 @@ The objective of this project is to build a deep playlist generator capable of p
 
 Moreover, the solution should generalize to not only my own playlists but any other user-defined playlists with the aim of providing playlist curators with a tool for creating quality mixes, more frequently.
 
-### Datasets and Inputs
+### Analyze
 The WMW dataset comprises 38 volumes each containing no more than 15 tracks. There is a total of 554 tracks in the dataset. The data is extracted via the Spotify for developers API and includes a set of audio features engineered by the Spotify team. Furthermore, I've included an additional attribute for track position.
 
 The following features have been selected to extract the appropriate information related to each track and playlist:
@@ -52,7 +52,7 @@ Further information regarding the audio features can be found [here](https://dev
 
 In addition to the track dataset, the solution will require a batch of candidate tracks to select from to generate a new playlist. Again, the Spotify API will be used to gather recommended tracks based on seeded artists, genres and tracks. In the future, as an extension of this project, collaborative filtering may be considered for sourcing richer sets of recommended tracks.
 
-### Solution Statement
+### Implement
 The WMW deep playlist generator is a deep sequence model that leverages a Recurrent Neural Network (RNN) architecture. RNN architectures are typically structured as chains where information persists - to some degree - as it flows through a sequence of input-output layers. This is quite powerful when predicting sequences of target outputs that are dependent on context or previous states. The model will employ a 'many-to-many' mapping of input-output vectors to generate a set of 'n-defined' tracks (no more than 15 in length). The output vectors at each song position in the sequence will be used to select a track from the recommended tracks list. To evaluate the model an appropriate estimator loss function will be defined.
 
 
@@ -62,7 +62,7 @@ The WMW deep playlist generator is a deep sequence model that leverages a Recurr
   <center><b>Fig. 2: Examples showing the flexible nature of Recurrent Neural Networks (<a href="http://karpathy.github.io/2015/05/21/rnn-effectiveness/">Andrej Karpathy 2015</a>)</b></center>
 </p> 
 
-### Benchmark Model
+### Results
 It is expected that the solution will pick tracks, conditioned by the context in which they appear, to deliver harmonic track sequences that closely resemble the manually crafted volumes to date. In theory, Vanilla RNNs can persist such information across sequences of input data but in practice commonly fall short. Then came along Long Short-Term Memory networks capable of persisting longer-term contexts of information. Christoper Olah's insightful images pictured below display the differences in how Vanilla RNNs and LSTMs persist information across sequences of inputs and outputs:
 
 
@@ -79,7 +79,7 @@ It is expected that the solution will pick tracks, conditioned by the context in
 
 For benchmarking, a Vanilla RNN architecture will be used to assess overall performance against a LSTM candidate model.  The models will be evaluated upon one of the loss functions detailed in the next section.
 
-### Evaluation Metrics
+### Conclusion
 
 The Mean Squared Error (MSE) and Mean Absolute Error (MAE) metrics will be considered as loss
 functions for the evaluation of the candidate models. MSE and MAE are defined as follows ([Peltarion 2020](https://peltarion.com/knowledge-center/documentation/evaluation-view/regression-loss-metrics)):
