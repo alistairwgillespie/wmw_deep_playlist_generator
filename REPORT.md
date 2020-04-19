@@ -9,7 +9,7 @@ Wilson's Morning Wake Up (WMW) is a Spotify playlist I curate each month; the pl
 assist listeners in starting their day with no more than 15 tracks; and explores a range of genres including house, classical, funk and jazz, to name a few. WMW is structured in a way as to gently build in tempo and intensity - commencing with classical and minimalistic tracks - then introducing dance, house and electronic tracks later in the playlist, culminating in an hour or so of blissful listening.
 
 ### Define
-Quality playlists take time and effort to curate. I thought it would be cool to train a model to generate beautiful playlists each day. This project is an attempt to generate playlists of the same quality and structure as WMW.
+Quality playlists take time and effort to curate. I thought it would be cool to train a model that generates beautiful playlists on demand, as a service. This project is an attempt match this ambition whilst also generating playlists of the same quality and structure as the WMW volumes.
 
 To be effective, the project needed to perform the following tasks:
 
@@ -20,7 +20,7 @@ To be effective, the project needed to perform the following tasks:
 5. Post a playlist to Spotify at Wilson's FM.
 
 ### Analyze
-The WMW dataset comprises 35 volumes each containing no more than 15 tracks. There is a total of 554 tracks in the dataset. The dataset was extracted using the Spotify for Developers API and includes a set of audio features engineered by the Spotify team. Furthermore, I've included an additional attribute for track position for guiding the sequence models discussed later in this paper.
+The WMW dataset comprises 37 volumes comprising up to 16 tracks. There is a total of 554 tracks in the dataset. Strictly speaking, it should be no longer than 15 tracks but I did get excited a few times. The dataset was sourced using the Spotify for Developers API and includes a set of audio features engineered by the Spotify team. Furthermore, I've included an additional attribute for track position to guide the sequence models discussed later in this report.
 
 The following features were selected to represent each track:
 
@@ -68,12 +68,13 @@ Finally, I decided to look at all of the WMW volumes in a single plot to try and
   <img src="img/all-volumes.png">
   <center><b>Fig. 4: PCA analysis of all volumes</b></center>
 </p>
+The code used to carriy out this analysis can be found in the '1_Explore.ipynb' and '2_Feature_Engineering.ipynb' notebooks.
 
 TODO: Analysis of linear combinations of features in each component
 
 ### Implement
 
-Python was used for this project along with famous tools such as PyTorch, Pandas and Numpy. 
+Python was used for this project along with prominent tools such as PyTorch, Pandas and Numpy. 
 
 The project was structured like so:
 
@@ -112,11 +113,15 @@ The project was structured like so:
 |-- REPORT.md # Project Report
 ```
 
-The dataset was prepared in a way to ensure that each track was mapped to the following track it precedes in the respective WMW volumes. The green boxes in Figure 2 show this mapping as the model moves vertically and to the right. This was executed by mirroring the features of each track, shifting the data by a single position backwards, and lastly, mapping the tracks to original track dataset. A StandardScaler was used to standardize the feature set and ensure that the model does not bias a particular feature due to variance.
+#### Data Preprocessing
 
- A PlaylistDataset class was built to serve as an iterable over the dataset. A DataLoader was then used to fetch batches - equivalent to the size of a playlist - from a PlaylistDataset object during training time. A fixed-sequence of 12 tracks was used instead of a variable-sequence for simplicity. The reason for this being that WMW volumes to date have ranged from 12 tracks, all the way up to 16 tracks.
+The dataset was prepared in a way to ensure that each track was mapped to the following track it precedes in the respective WMW volumes. The green boxes in Figure 2 show this mapping as the model moves vertically and to the right. This was executed by mirroring the features of each track, shifting the data by a single position backwards, and lastly, mapping the tracks to original track dataset. A StandardScaler was used to standardize the feature set and ensure that the model does not bias a particular feature due to variance. These steps were carried out in the '2_Feature_Engineering.ipynb' notebook.
 
-The Mean Absolute Error - alternatively called the L1Loss in PyTorch - was selected to evaluate the performance of each model during training time. For test time, the resulting playlist was evaluated by listening to it on Spotify. MAE served as an indicator of the model fit to the data. It is worth noting that, ideally, a little bit of error is tolerable given it could enable "creativity" or new and unique track selections during playlist creation. However, the true indicator of performance is the listening experience, as a result, each playlist was "tested" in the living room of our house by my housemates and I. This was simply a qualitative analysis.
+Next, a PlaylistDataset class was built to serve as an iterable over the dataset. A DataLoader was then used to fetch batches - equivalent to the size of a playlist - from a PlaylistDataset object during training time. A fixed-sequence of 12 tracks was used instead of a variable-sequence for simplicity. The reason for this being that WMW volumes to date have ranged from 12 tracks, all the way up to 16 tracks. Future iterations of this project will likely account for variable-length sequences.
+
+#### Modelling & Learning
+
+The Mean Absolute Error - alternatively called the L1Loss in PyTorch - was selected to evaluate the performance of each model during training time. MAE was used over Mean Squared Error (MSE) because it is more robust to outliers since it does not raise to the power of 2. MAE served as the loss function for the model. It is worth noting that, a little bit of error is tolerable given it could enable model "creativity" or the ability to suggest unique track selections during playlist creation. However, the true indicator of performance is the listening experience, as a result, each playlist was "tested" in the living room of our house by my housemates and I.
 
 <p align="center">
   <img src="img/mae.png">
@@ -125,17 +130,36 @@ The Mean Absolute Error - alternatively called the L1Loss in PyTorch - was selec
 
 To achieve the objective of predicting the attributes of the next track given the current track, it was decided that a many-to-many recurrent neural network would suffice (Figure 2). At each epoch, the model was trained on the entire dataset. The dataset was iterated over, a single batch at a time. At each batch, the model's hidden state was initialised with zeros. Then each track in the batch was provided as a forward pass, one at a time, until the batch was exhausted. At each forward pass, the model produced an output along with an updated hidden state. The output was then compared with the ground truth to calculate the MAE loss. The output and hidden state were then used as input for the next prediction. The average MAE loss for the entire batch was then calculated and stored for record. 
 
-A Vanilla Recurrent Neural Network (RNN) was chosen as the baseline model and a Long Short-Term Memory Model (LSTM) was chosen as the alternative model. Each model followed the aforementioned training process.
+A Vanilla Recurrent Neural Network (RNN) was chosen as the baseline model and a Long Short-Term Memory Model (LSTM) was chosen as the alternative model. Each model followed the aforementioned training process. Each model was defined with an input of 9 features, 2 hidden layers of 30 dimensions, and  an output of 9 dimensions. For regularization, a dropout of 0.3 was chosen. Given this is a small dataset, it was decided that the models use simple parameters.
+
+I decided to build pipelines for both local and AWS SageMaker environments. Each implementation can be found in the Train_Deploy_Local and 'Train_Deploy_AWS.ipynb' notebooks. Once the modes were trained, they were then saved in the artefacts folder.
 
 <p align="center">
   <img src="img/wilson-fm-many-to-many.png", width=400px, height=400px>
   <center><b>Fig. 6: Many-to-many RNN: the model's hidden state (h) is initiated then each following track (t+1) is predicted using the current hidden state and current track (t) as input until the last track position.</b></center>
 </p> 
+<p align="center">
+  <img src="img/nn.svg">
+<center><b>Fig. 7: Example Recurrent Neural Network Unit for Track Estimating</b></center>
+</p>
 
 
 
+#### Deployment
 
+The Playlist class was defined to perform the following tasks:
 
+1. Connect to the Spotify API.
+2. Initiate the playlist, model and variables.
+3. Select the first track.
+4. Predict the features of each subsequent track.
+5. For each track position: 
+   1. Gather a pool of recommendations via the Spotify API.
+   2. Filter tracks that are harmonically compatible with the previous track using the [Camelot Wheel](http://www.harmonic-mixing.com/howto.aspx) created by Mark Davis.
+   3. Apply PCA to the output of the model and the recommendations pool.
+   4. Choose the track from the recommendations pool that is closest to the output using euclidean distance.
+   5. Append the chosen track to the playlist.
+6. Once the playlist is complete (15 tracks) post it to my Spotify account.
 
 ### Results
 It is expected that the solution will pick tracks, conditioned by the context in which they appear, to deliver harmonic track sequences that closely rese	mble the manually crafted volumes to date. In theory, Vanilla RNNs can persist such information across sequences of input data but in practice commonly fall short. Then came along Long Short-Term Memory networks capable of persisting longer-term contexts of information. Christoper Olah's insightful images pictured below display the differences in how Vanilla RNNs and LSTMs persist information across sequences of inputs and outputs:
@@ -250,10 +274,8 @@ For modeling and training, the following tasks will be performed:
 
 The primary focus of this phase will be to consider the problem domain at hand, and any key findings, to configure the network appropriately, in particular, the input vector dimensions (feature set), number of hidden layers, output vector dimensions and regularization (Figure 7).
 
-<p align="center">
-  <img src="img/nn.svg">
-<center><b>Fig. 7: Example Recurrent Neural Network Unit for Track Estimating</b></center>
-</p>
+
+
 
 
 
