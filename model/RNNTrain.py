@@ -21,7 +21,7 @@ def model_fn(model_dir):
     print("Loading model.")
 
     # First, load the parameters used to create the model.
-    model_info = {}s
+    model_info = {}
     model_info_path = os.path.join(model_dir, 'rnn_info.pth')
     with open(model_info_path, 'rb') as f:
         model_info = torch.load(f)
@@ -61,36 +61,44 @@ def train(model, train_loader, epochs, criterion, optimizer, device):
     optimizer    - The optimizer to use during training.
     device       - Where the model and data should be loaded (gpu or cpu).
     """
-    
-    # training loop is provided
-    for epoch in range(1, epochs + 1):
-        
-        for i, batch in enumerate(train_loader):
 
+    model.train() # Make sure that the model is in training mode.
+
+    for epoch in range(1, epochs + 1):
+
+        avg_loss = 0
+
+        # Iterate over dataset
+        for i, batch in enumerate(train_loader):
+            # Clear stored gradient
             optimizer.zero_grad()
 
-            cum_loss = 0
-            
+            # Initialize hidden state
             hidden_cell = model.init_hidden()
-            
-            for i, track in enumerate(batch):
-                
-                track_x = track[0]
-                track_y = track[-1]
-                
-                output, hidden_cell = model(track_x.unsqueeze(0), hidden_cell)
-                
-                loss = criterion(output.squeeze(0), track_y)
-                loss.backward(retain_graph=True)
-                optimizer.step()
-                cum_loss += loss.data.item()
 
-            total_loss = cum_loss / len(batch[0])
-            
+            # Batch of 12 tracks
+            batch_x = batch[0]  # X input
+            batch_y = batch[-1]  # y target
+
+            # Forward pass
+            output, hidden_cell = model(batch_x.unsqueeze(0), hidden_cell)
+
+            # Calculate MAE loss over batch
+            batch_loss = criterion(output.squeeze(0), batch_y)
+            avg_loss += batch_loss.item()
+
+            # Zero out gradient, so it doesnt accumulate between epochs
+            optimizer.zero_grad()
+
+            # Backward pass
+            batch_loss.backward()
+
+            # Update parameters
+            optimizer.step()
+
         if epoch % 50 == 0:
             print('Epoch: {}/{}.............'.format(epoch, epochs), end=' ')
-            print("Loss: {:.4f}".format(total_loss))
-
+            print("Loss: {:.4f}".format(avg_loss / len(train_loader)))
 
 if __name__ == '__main__':
     

@@ -52,11 +52,11 @@ class Playlist():
         self.dim_red = joblib.load('artefacts/dim_red.pkl')
 
         if model_type == "LSTM":
-            model = LSTMEstimator(9, 30, 1, 9)
+            model = LSTMEstimator(9, 12, 2, 9, 1)
             model.load_state_dict(torch.load('artefacts/lstm_model.pth'))
 
         elif model_type == "RNN":
-            model = RNNEstimator(9, 30, 9)
+            model = RNNEstimator(9, 12, 2, 9, 1)
             model.load_state_dict(torch.load('artefacts/rnn_model.pth'))
         else:
             print("Please specify either the RNN or LSTM model using the model_type parameter.")
@@ -171,11 +171,11 @@ class Playlist():
         return recommendations
 
     def pick_optimal_track(self, candidates, target):
-        """Select the track with the minimum distance between the candidate tracks."""
+        """Select the track with the minimum Euclidean distance between the candidate tracks."""
 
         candidates_reduced = self.dim_red.transform(candidates[self.feature_list])
 
-        target_reduced = self.dim_red.transform(target)
+        target_reduced = self.dim_red.transform(target[0])
 
         next_track_id = np.argmin(cdist(target_reduced, candidates_reduced))
 
@@ -216,27 +216,19 @@ class Playlist():
             # Get recommended tracks for current track position
             recommendations = self.get_position_recommendations(p)
 
-#             print("Recommendations", recommendations.shape)
-
             # Filter for compatible tracks according to key and mode (harmonic wheel)
             next_tracks_curr_mode = recommendations[
                 (recommendations['key'].isin(keys[:3])) & (recommendations['mode'] == current_mode)
             ]
 
-#             print("Curr mode", next_tracks_curr_mode.shape)
-
             next_tracks_change_mode = recommendations[
                 (recommendations['key'] == keys[-1]) & (recommendations['mode'] == abs(int(not current_mode)))
             ]
-
-#             print("Change mode", next_tracks_change_mode.shape)
 
             candidate_tracks = pd.concat([next_tracks_curr_mode, next_tracks_change_mode]).reset_index(drop=True)
 
             # Ensure no duplicates exist in the playlist
             candidate_tracks = candidate_tracks[~candidate_tracks['id'].isin(predicted['id'])]
-
-#             print("CANDIDATES:", candidate_tracks.shape)
 
             # Pick optimal track
             next_track = self.pick_optimal_track(candidate_tracks, output)
@@ -264,4 +256,4 @@ class Playlist():
             print("Posting latest Wilson's FM.")
             print('-' * 20)
         else:
-            print("Can't get token for", username)
+            print("Can't get token")

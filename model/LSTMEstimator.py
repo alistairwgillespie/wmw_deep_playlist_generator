@@ -9,7 +9,7 @@ class LSTMEstimator(nn.Module):
     LSTM Estimator for generating sequences of target variables.
     """
 
-    def __init__(self, input_features=9, hidden_dim=30, n_layers=1, output_dim=9):
+    def __init__(self, input_features=9, hidden_dim=12, n_layers=2, output_dim=9, batch_size=12):
         """s
         Initialize the model by setting up linear layers.
         Use the input parameters to help define the layers of your model.
@@ -21,7 +21,8 @@ class LSTMEstimator(nn.Module):
         
         self.hidden_dim = hidden_dim
         self.hidden_layers = n_layers
-        
+        self.batch_size = batch_size
+
         # The LSTM takes track features as inputs, and outputs hidden states
         # with dimensionality hidden_dim
         self.lstm = nn.LSTM(input_features, self.hidden_dim, n_layers, dropout=0.3)
@@ -31,7 +32,8 @@ class LSTMEstimator(nn.Module):
         
     ## Initialize the hidden and cell states of the LSTM with zeros.
     def init_hidden(self):
-        return (torch.zeros (self.hidden_layers, 1, self.hidden_dim)),(torch.zeros (self.hidden_layers, 1, self.hidden_dim))
+        return (torch.zeros(self.hidden_layers, self.batch_size, self.hidden_dim)), \
+               (torch.zeros(self.hidden_layers, self.batch_size, self.hidden_dim))
         
     
     ## Define the feedforward behavior of the network
@@ -43,7 +45,8 @@ class LSTMEstimator(nn.Module):
         """
         
         # define the feedforward behavior
-        lstm_out, hidden_cell = self.lstm(input.view(len(input) ,1, -1), hidden_cell)
-        output = self.hidden2target(lstm_out.view(len(input), -1))
+        lstm_out, hidden_cell = self.lstm(input.view(len(input), self.batch_size, -1), hidden_cell)
+
+        output = self.hidden2target(lstm_out)
         
         return output, hidden_cell
