@@ -5,7 +5,7 @@ __pycache__/
 .cache*
 # C extensions
 *.so
-config.py
+#config.py TO ADD BACK
 .idea/
 # Distribution / packaging
 .Python
