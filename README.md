@@ -47,6 +47,23 @@ Install latest PyTorch for local and cpu only
 conda install pytorch torchvision cpuonly -c pytorch
 ```
 
+Run jupyter notebook in the root of the project directory to take a look at each notebook
+
+```
+jupyter notebook
+```
+
+## Run
+
+To generate a playlist, run the following commands in the the command line whilst in the root of the repo:
+
+```
+conda activate local_wmw
+python main.py
+```
+
+A single playlist takes around 10 minutes to generate.
+
 ## Structure
 
 The project is structured like so:

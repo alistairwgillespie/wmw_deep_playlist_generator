@@ -51,7 +51,6 @@ def _get_train_data_loader(batch_size, training_dir):
     
     return DataLoader(dataset, batch_size=batch_size, shuffle=False)
 
-# Training function for LSTM
 def train(model, train_loader, epochs, criterion, optimizer, device):
     """
     This is the training method that is called by the PyTorch training script of the LSTM model. The parameters
