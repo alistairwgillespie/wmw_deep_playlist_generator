@@ -192,13 +192,13 @@ After generating a bunch of playlists, it  became apparent that selecting tracks
 
 ### Results
 
-The following table shows the performance (MAE loss) of each model for different epoch limits during training:
+The following table shows the performance (Average MAE loss) of each model for different epoch limits during training:
 
 |           |        |         |  Epochs  |          |          |           |
 | :-------: | :----: | :-----: | :------: | :------: | :------: | :-------: |
 | **Model** | **50** | **500** | **1000** | **1500** | **2000** | **10000** |
 |    RNN    | 0.6244 | 0.6024  |  0.5956  |  0.5954  |  0.5943  |  0.5835   |
-|   LSTM    | 0.6162 | 0.5746  |  0.5506  |  0.5473  |  0.5326  |           |
+|   LSTM    | 0.6162 | 0.5746  |  0.5506  |  0.5473  |  0.5326  |  0.5109   |
 
 <p align="center"><center><b>Table. 1: MAE Loss for different Epochs </b></center></p>
 
@@ -208,13 +208,15 @@ The following table shows the performance (MAE loss) of each model for different
   <center><b>Fig. 4: MAE Loss against Epoch for RNN and LSTM</b></center>
 </p>
 
-Figure 6 shows the performance of each model for 2000 epochs of training. The LSTM recorded a significant 10.95% lower loss than the baseline RNN over 10000 epochs. 10000 epochs was sufficient in the end given very little improvements in error were observed between 2000 and 10000, especially in the case of the RNN. 
+Figure 6 shows the performance of each model for 10000 epochs of training. The LSTM recorded a significant 13.27% lower error than the baseline RNN over 10000 epochs. 10000 epochs was sufficient in the end given very little improvements in error were observed between 3000 and 10000, especially in the case of the RNN. 
 
 ### Conclusion
 
 This project only scratches the surface of what is possible when it comes to deep learning and playlist creation. Recurrent neural networks are a powerful way of modelling track sequences, especially, when it combined with Spotify's API, and I believe I have much unfinished business to take this project further.
 
 The LSTM model was selected as the optimal model for this problem given its ability to fit the data better than its baseline RNN counterpart. This model - married with feature decomposition and distance similarity - produced melodic playlists of high quality that resemble the origin Wilson's Morning Wake Up volumes. However, it must be said that the solution does sometimes select an odd track or two. This observation will drive this project forward as I try to employ further machine learning methods to optimize track selection.
+
+I look forward to deploying this solution as a daily service on AWS using Lambda in the future. The aim will be run the pipeline each morning and update the playlist. 
 
 ### References
 
