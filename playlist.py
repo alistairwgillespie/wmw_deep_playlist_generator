@@ -193,7 +193,7 @@ class Playlist():
         # Prepare initial input
         input = torch.FloatTensor(intro_track[self.feature_list].values)
 
-        print("Intro track:", predicted['name'].values[0], '-', ', '.join(predicted['artists'].values[0]))
+        print("Track #1:", predicted['name'].values[0], '-', ', '.join(predicted['artists'].values[0]))
 
         hidden_state = model.init_hidden()
 

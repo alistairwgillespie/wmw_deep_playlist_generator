@@ -39,9 +39,10 @@ def main():
 
     track_data = pd.read_csv(os.path.join(data_dir, "wmw_tracks.csv"))
 
-    playlist = Playlist(track_data, sp, token, model_type="RNN")
+    playlist = Playlist(track_data, sp, token, model_type="LSTM")
 
     playlist.post_playlist()
+
 
 if __name__ == '__main__':
     main()
