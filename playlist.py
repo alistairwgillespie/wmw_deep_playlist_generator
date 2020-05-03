@@ -197,7 +197,7 @@ class Playlist():
 
         hidden_state = model.init_hidden()
 
-        for p in tqdm(range(2, playlist_len + 1)):
+        for p in range(2, playlist_len + 1):
             print("Track #%s - Generating candidates" % p)
 
             # Important stuff about the last track
