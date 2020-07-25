@@ -19,6 +19,7 @@ dependencies:
   - scikit-learn
   - python-dotenv
   - tqdm
+  - flake8
   - pip
   - pip:
     - spotipy

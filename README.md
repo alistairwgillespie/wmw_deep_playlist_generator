@@ -44,7 +44,7 @@ python -m ipykernel install --user --name=local_wmw
 4. Install latest PyTorch for local and cpu only
 
 ```bash
-     conda install pytorch torchvision cpuonly -c pytorch
+conda install pytorch torchvision cpuonly -c pytorch
 ```
 
 5. Head on over to [Spotify for Developers](https://developer.spotify.com/dashboard/) and setup an app. Spotify will then supply an ID and Secret for accessing your app. Store these in your own .env file in the root of the directory like so:
@@ -66,43 +66,4 @@ python main.py
 ```
 
 A single playlist takes around 10 minutes to generate.
-
-## Structure
-
-The project is structured like so:
-
-```bash
-.
-|-- artefacts/ # Save models and artefacts here
-	|-- dim_red.pkl # Principal Component Analysis
-	|-- lstm_model.pth # Long Short-Term Memory Neural Network
-	|-- rnn_model.pth # Vanilla Recurrent Neural Network
-	|-- standard_features.pkl # Standard Scaler
-|-- data/
-    |-- tensor_train.csv # Training dataset
-    |-- wmw.csv # Pool of Wilson's Morning Wake Up tracks to date
-|-- model/
-    |-- LSTMEstimator.py # LSTM Model with initialisation and feed-forward
-    |-- LSTMTrain.py # Code for training the LSTM on AWS SageMaker
-    |-- PlaylistDataset.py # Dataset Class
-    |-- Predict.py # Code for predictions on AWS SageMaker
-    |-- RNNEstimator.py # RNN Model with initialisation and feed-forward
-    |-- RNNTrain.py # Code for training the RNN on AWS SageMaker
-|-- img/
-    |-- ...
-|-- .gitignore # ...
-|-- 0_Setup_Database.ipynb # Databased Setup for future use
-|-- 1_Explore.ipynb # Initial data ingestion and analaysis
-|-- 2_Feature_Engineering.ipynb # Feature preparation and further analysis
-|-- 3_Train_Deploy_LOCAL.ipynb # Pipeline for training each model locally
-|-- 4_Train_Deploy_AWS.ipynb # Pipeline for training each model on AWS SageMaker
-|-- 5_Generate.ipynb # Generates a playlist and posts to Spotify
-|-- LICENSE # MIT License
-|-- local_env.yml # Environment details
-|-- main.py # Pipeline that generates a playlist and posts to Spotify via CLI
-|-- playlist.py # Playlist class
-|-- PROPOSAL.md # Project Proposal
-|-- README.md # ...
-|-- REPORT.md # Project Report
-```
 

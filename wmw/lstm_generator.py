@@ -4,7 +4,7 @@ import torch.nn.functional as F
 import torch.nn as nn
 
 
-class WMWGenerator(nn.Module):
+class LSTMGenerator(nn.Module):
     """
     LSTM Estimator for generating sequences of target variables.
     """
@@ -13,7 +13,7 @@ class WMWGenerator(nn.Module):
         """
         Initialize the LSTM model.
         """
-        super(WMWGenerator, self).__init__()
+        super(LSTMGenerator, self).__init__()
         
         self.hidden_dim = hidden_dim
         self.hidden_layers = n_layers

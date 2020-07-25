@@ -4,13 +4,13 @@ import torch.nn.functional as F
 import torch.nn as nn
 
 
-class RNNEstimator(nn.Module):
+class RNNGenerator(nn.Module):
     """
     RNN Estimator for generating sequences of target variables.
     """
     
     def __init__(self, input_features=9, hidden_dim=12, n_layers=2, output_dim=9, batch_size=12):
-        super(RNNEstimator, self).__init__()
+        super(RNNGenerator, self).__init__()
 
         self.hidden_dim = hidden_dim
         self.hidden_layers = n_layers

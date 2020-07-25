@@ -13,8 +13,8 @@ import torch
 import torch.optim as optim
 
 # Models
-from model.LSTMEstimator import LSTMEstimator
-from model.RNNEstimator import RNNEstimator
+from wmw.wmw_lstm_generator import WMWGenerator
+from wmw.wmw_rnn_generator import RNNEstimator
 
 # If AWS SageMaker:
 # Spotify API
