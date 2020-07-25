@@ -13,8 +13,8 @@ import torch
 import torch.optim as optim
 
 # Models
-from wmw.wmw_lstm_generator import WMWGenerator
-from wmw.wmw_rnn_generator import RNNEstimator
+from wmw.lstm_generator import WMWGenerator
+from wmw.rnn_generator import RNNEstimator
 
 # If AWS SageMaker:
 # Spotify API
@@ -29,7 +29,7 @@ import joblib
 
 
 class Playlist():
-    def __init__(self, wmw_pool, spotify_auth, spotify_token, model_type="LSTM"):
+    def __init__(self, track_pool, spotify_auth, spotify_token, model_type="LSTM"):
         """ Initiates pool of historic tracks, spotify api authentication and
             model of choice.
         """

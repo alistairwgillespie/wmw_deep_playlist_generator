@@ -3,7 +3,7 @@ import sys
 import os
 import pandas as pd
 import config
-from playlist import Playlist
+from wmw.playlist import Playlist
 import os
 from dotenv import load_dotenv, find_dotenv
 
@@ -37,7 +37,7 @@ def main():
                                        scope,
                                        client_id=spotify_id,
                                        client_secret=spotify_secret,
-                                       redirect_uri='http://localhost/'
+                                       redirect_uri='http://localhost:8080'
                                        )
 
     # Authenticate
