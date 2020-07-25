@@ -47,7 +47,7 @@ python -m ipykernel install --user --name=local_wmw
      conda install pytorch torchvision cpuonly -c pytorch
 ```
 
-5. Head on over to [link](https://developer.spotify.com/dashboard/) and setup an app. Spotify will then supply an ID and Secret for accessing your app. Store these in your own .env file in the root of the directory like so:
+5. Head on over to [Spotify for Developers](https://developer.spotify.com/dashboard/) and setup an app. Spotify will then supply an ID and Secret for accessing your app. Store these in your own .env file in the root of the directory like so:
 
 ```python
 # example .env file
