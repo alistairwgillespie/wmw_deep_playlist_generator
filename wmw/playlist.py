@@ -27,9 +27,10 @@ from spotipy.oauth2 import SpotifyClientCredentials
 sb.call([sys.executable, "-m", "pip", "install", 'joblib'])
 import joblib
 
-
+# TODO: Contain recommendations pool to Best Of and add 
+# Deep Work as pool for intro tracks
 class Playlist():
-    def __init__(self, track_pool, spotify_auth, spotify_token, model_type="LSTM"):
+    def __init__(self, wmw_pool, spotify_auth, spotify_token, model_type="LSTM"):
         """ Initiates pool of historic tracks, spotify api authentication and
             model of choice.
         """

@@ -37,44 +37,12 @@ feature_list = [
     'speechiness', 'acousticness', 'instrumentalness', 
     'liveness', 'valence', 'tempo']
 
+# Exclude list
 exclude_list = [
     'track_name', 'artist_name', 'duration_ms', 
     'track_href', 'uri', 'time_signature', 'id', 
     'type', 'analysis_url', 'mode','key']
 
-# # 
-# AUTH_URL = 'https://accounts.spotify.com/api/token'
-
-# # POST
-# auth_response = requests.post(AUTH_URL, {
-#     'grant_type': 'client_credentials',
-#     'client_id': spotify_id,
-#     'client_secret': spotify_secret,
-# })
-
-# # convert the response to JSON
-# auth_response_data = auth_response.json()
-
-# # save the access token
-# access_token = auth_response_data['access_token']
-
-# headers = {
-#     'Authorization': 'Bearer {token}'.format(token=access_token)
-# }
-
-# print(headers['Authorization'])
-
-# # Set API scope
-# scope='playlist-read-private, playlist-modify-private, playlist-modify-public'
-
-# # Get auth token
-# token = util.prompt_for_user_token(username, 
-#                                    scope,
-#                                    client_id=spotify_id,
-#                                    client_secret=spotify_secret,
-#                                    redirect_uri='http://localhost/')
-
-CACHE = '.spotipyoauthcache'
 
 def connect_spotify():
     """Connects to Spotify API.
@@ -103,7 +71,7 @@ def get_playlist_metadata(sp, n):
         print(f"{e}: Failed to gather current user playlists.")
 
 
-def generate_dataset(sp, playlists, search):
+def generate_dataset(sp, playlists, search, save_as):
     """Gathers playlist(s) based on input search
     """
     tracks_df = pd.DataFrame()   
@@ -130,7 +98,7 @@ def generate_dataset(sp, playlists, search):
             playlists = sp.next(playlists)
         else:
             playlists = None
-        tracks_df.to_csv("data/dataset.csv")
+        tracks_df.to_csv("data/" + save_as)
         return tracks_df
 
 
@@ -161,7 +129,7 @@ def standardize(df, feature_list, exclude_list):
 input_search = 'Morning Wake Up Vol.'
 sp = connect_spotify()
 playlists = get_playlist_metadata(sp, n=50)
-tracks_df = generate_dataset(sp, playlists, input_search)
+tracks_df = generate_dataset(sp, playlists, input_search, 'dataset.csv')
 
 # Build and save feature models
 tracks_df, _ = standardize(tracks_df, feature_list, exclude_list)
@@ -180,3 +148,9 @@ for i in tracks_df['volume'].unique():
     del X_y_df
 
 training_df.to_csv("data/tensor_train.csv", index=False)
+
+# Get track pool for recommendations
+# input_search = "Wilson's Morning Wake Up Best Of"
+# sp = connect_spotify()
+# playlists = get_playlist_metadata(sp, n=50)
+# tracks_df = generate_dataset(sp, playlists, input_search, 'wmw_pool.csv')

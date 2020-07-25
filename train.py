@@ -61,15 +61,14 @@ def train(model, train_loader, epochs, criterion, optimizer, device):
         
         loss_record.append(avg_loss / len(train_loader))
         
-        if epoch % 50 == 0:
+        if epoch % 2 == 0:
             print('Epoch: {}/{}.............'.format(epoch, epochs), end=' ')
             print("Loss: {:.4f}".format(avg_loss / len(train_loader)))
-
 
 device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
 lstm_model = LSTMGenerator(9, 12, 2, 9)
 optimizer = optim.Adam(lstm_model.parameters(), lr=0.001)
 loss_fn = torch.nn.L1Loss()
-num_epochs = 10
+num_epochs = 100
 train(lstm_model, dataloader, num_epochs, loss_fn, optimizer, device)
 torch.save(lstm_model.state_dict(), 'models/lstm_model.pth')
