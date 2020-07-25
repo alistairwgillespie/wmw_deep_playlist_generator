@@ -51,9 +51,11 @@ conda install pytorch torchvision cpuonly -c pytorch
 
 ```python
 # example .env file
-SPOTIFY_EMAIL=example@example.com
-SPOTIFY_ID=12345678910
-SPOTIFY_SECRET=12345678910
+SPOTIFY_EMAIL=hello@example.com
+SPOTIPY_CLIENT_ID=XXX
+SPOTIPY_CLIENT_SECRET=XXX
+SPOTIPY_REDIRECT_URI=http://localhost:8080
+CACHE=.spotipyoauthcache
 ```
 
 ## Run
@@ -66,4 +68,5 @@ python main.py
 ```
 
 A single playlist takes around 10 minutes to generate.
+
 
