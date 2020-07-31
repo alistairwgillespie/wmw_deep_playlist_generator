@@ -2,7 +2,7 @@ import os
 import pandas as pd
 import torch
 from torch.utils.data import Dataset
-import numpy as np
+
 
 class PlaylistDataset(Dataset):
     def __init__(self, data_dir, csv_path):
@@ -23,7 +23,7 @@ class PlaylistDataset(Dataset):
     def __getitem__(self, index):
         # Get track
         single_track = torch.from_numpy(self.data_arr[index]).float()
-        
+
         # Get label(class) of the image based on the cropped pandas column
         single_target = torch.from_numpy(self.label_arr[index]).float()
 
