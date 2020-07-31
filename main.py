@@ -2,8 +2,7 @@ import subprocess as sb
 import sys
 import os
 import pandas as pd
-import config
-from wmw.playlist import Playlist
+from wmw.wmw_playlist import WMWPlaylist
 import os
 from dotenv import load_dotenv, find_dotenv
 
@@ -26,6 +25,7 @@ USERNAME = os.environ.get("SPOTIFY_EMAIL")
 SPOTIFY_ID = os.environ.get("SPOTIPY_CLIENT_ID")
 SPOTIFY_SECRET = os.environ.get("SPOTIPY_CLIENT_SECRET")
 CACHE = os.environ.get("CACHE")
+
 
 def connect_spotify():
     """Connects to Spotify API.
@@ -66,13 +66,22 @@ def main():
     #     )
     # )
     data_dir = 'data'
+    sp = connect_spotify()
 
-    track_data = pd.read_csv(os.path.join(data_dir, "dataset.csv"))
+    # # Wilson's FM
+    # wmw_data = pd.read_csv(os.path.join(data_dir, "wmw_pool.csv"))
+    # wmw_playlist = Playlist(wmw_data, sp, USERNAME, "5Yia6eXihjr96S3oyRm1dX")
+    # wmw_playlist.post_playlist()
 
-    playlist = Playlist(track_data, sp, token, model_type="LSTM")
+    # Wilson's Daily Lo-Fi
+    lofi_data = pd.read_csv(os.path.join(data_dir, "lofi_pool.csv"))
+    lofi_playlist = WMWPlaylist(lofi_data, sp, USERNAME, "5OwXRuFy7UJdyAfUkv59Ur")
+    lofi_playlist.post_playlist()
 
-    playlist.post_playlist()
-
+    # # Wilson's Daily Classical
+    # classical_data = pd.read_csv(os.path.join(data_dir, "classical_pool.csv"))
+    # classical_playlist = Playlist(classical_data, sp, USERNAME, "4jFQH5eT0Q6XD95SpPyFcH")
+    # classical_playlist.post_playlist()
 
 if __name__ == '__main__':
     main()
