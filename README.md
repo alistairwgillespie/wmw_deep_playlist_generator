@@ -2,21 +2,15 @@
 
 
 
-# Wilson's FM - A Deep Playlist Generator
+# Wilson's Deep Playlist Generator
 
 [![MIT License](https://img.shields.io/apm/l/atomic-design-ui.svg?)](https://github.com/tterb/atomic-design-ui/blob/master/LICENSEs)[![made-with-python](https://img.shields.io/badge/Made%20with-Python-1f425f.svg)](https://www.python.org/) 
 
 ## Background
 
-Wilson's FM is a project born out of a passion for curating playlists that move people as they go about their day; whether it be getting ready for work, setting foot in the gym or going for a walk, music can make things extra special.  
+Wilson's Deep Playlist Generator provides a pipeline for generating beautiful sequences of tracks. The generator uses a Recurrent Neural Network to learn the patterns used by playlist curators and artists to build playlists. The default model is trained on all volumes from the Wilson's Morning Wake Up series on Spotify.
 
-For the past two years, I have been curating a monthly playlist - aptly named Wilson's Morning Wake Up - that is designed to gently build as you start your day. The idea is to wake up, have a coffee then press play. Since the inaugural release, it now equates to 39 volumes (at the time of writing) and has over 200 followers.
-
-This project is an attempt to train a sequence-based model that learns how I curate the Wilson's Morning Wake Up playlists. The intent is to leverage this to generate unique, blissful compilations of tunes each day via the Wilson's FM API.
-
-In the future, I hope to generalize this framework into a tool that artists, playlist curators and alike, can use to generate quality playlists, more frequently, for their listeners.
-
-To listen to the fruits of the this project's labour, head on over to the playlist at this [link](https://open.spotify.com/playlist/7x1MY3AW3YCaHoicpiacGv?si=z5uRN003SN2fd1C7lyXBqw)
+To listen to the fruits of this project's labour, head on over to the playlist at this [link](https://open.spotify.com/playlist/7x1MY3AW3YCaHoicpiacGv?si=z5uRN003SN2fd1C7lyXBqw)
 
 If you would like to listen to the original playlist, you can find it [here](https://open.spotify.com/playlist/2cczJrvEvS5j5oO5tf7ooP?si=lpxcB8a6TZqV6f_GLto8gw) too.
 
@@ -56,6 +50,12 @@ SPOTIPY_CLIENT_ID=XXX
 SPOTIPY_CLIENT_SECRET=XXX
 SPOTIPY_REDIRECT_URI=http://localhost:8080
 CACHE=.spotipyoauthcache
+
+# Modeling info
+MODEL_DIR=models
+MODEL_CHOICE=lstm_model.pth
+SCALER_CHOICE=standard_features.pkl
+PCA_CHOICE=dim_red.pkl
 ```
 
 ## Run
@@ -64,6 +64,11 @@ To generate a playlist, run the following commands in the the command line whils
 
 ```
 conda activate local_wmw
+
+# First generate a playlist pool
+python get_playlist_pool.py
+
+# Then generate a playlist
 python main.py
 ```
 
